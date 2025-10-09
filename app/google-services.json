@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "431229267077",
+    "project_id": "forgetshyness",
+    "storage_bucket": "forgetshyness.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:431229267077:android:afbd16e34b9d318b718dec",
+        "android_client_info": {
+          "package_name": "com.example.forgetshyness"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQDcwJ9Fi2NAr_56VNisnc86guTIm917k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
