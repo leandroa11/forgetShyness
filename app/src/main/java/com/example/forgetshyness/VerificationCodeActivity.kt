@@ -102,6 +102,7 @@ fun VerificationScreen(
                 Toast.makeText(context, "Código enviado al $userPhone", Toast.LENGTH_SHORT).show()
             },
             onVerificationFailed = { exception ->
+                android.util.Log.e("OTP_ERROR", "La verificación del teléfono falló", exception)
                 Toast.makeText(context, "Error al enviar código: ${exception.message}", Toast.LENGTH_LONG).show()
                 isResendEnabled = true // Permitir reintento si falla
             }

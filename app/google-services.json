@@ -12,7 +12,16 @@
           "package_name": "com.example.forgetshyness"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "431229267077-la10lor1je95fej3hqqv8t4jc8ms44df.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.forgetshyness",
+            "certificate_hash": "24d200c5da48e83705f49923676320663f266fa4"
+          }
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBQDcwJ9Fi2NAr_56VNisnc86guTIm917k"
