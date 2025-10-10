@@ -1,10 +1,11 @@
 package com.example.forgetshyness
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -31,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.User
 import kotlinx.coroutines.launch
-import java.util.regex.Pattern
 
 class ExperienceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,16 +64,7 @@ private fun validateAge(age: String): String {
 }
 
 private fun validateEmail(email: String): String {
-    val emailPattern = Pattern.compile(
-        "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
-                "\\@" +
-                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
-                "(" +
-                "\\." +
-                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
-                ")+"
-    )
-    if (!emailPattern.matcher(email).matches()) return "Formato de correo no válido."
+    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) return "Formato de correo no válido."
     return ""
 }
 
@@ -81,7 +72,7 @@ private fun validateEmail(email: String): String {
 @Composable
 fun ExperienceFormScreen() {
     val context = LocalContext.current
-    val activity = (LocalContext.current as? Activity)
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val coroutineScope = rememberCoroutineScope()
     val firestoreRepository = remember { FirestoreRepository() }
 
@@ -227,7 +218,7 @@ fun ExperienceFormScreen() {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { activity?.finish() }
+                modifier = Modifier.clickable { backDispatcher?.onBackPressed() }
             ) {
                 Image(
                     painter = painterResource(R.drawable.flecha_izquierda),
