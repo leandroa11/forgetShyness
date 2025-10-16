@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "318314449497",
+    "project_id": "forgetshyness-17c0d",
+    "storage_bucket": "forgetshyness-17c0d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:318314449497:android:3bb3669988aecd26e77f48",
+        "android_client_info": {
+          "package_name": "com.example.forgetshyness"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "318314449497-li31pdqnvv85vdojus20mntpamfpbhrp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.forgetshyness",
+            "certificate_hash": "24d200c5da48e83705f49923676320663f266fa4"
+          }
+        },
+        {
+          "client_id": "318314449497-vtjb6k5tf277n17lfts32m7jus9iq49g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.forgetshyness",
+            "certificate_hash": "9df98b12caf8f0f7d6ecae73e562a42641d733a0"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr_rtIna8v0FAg-Va4P-kVNpVdkX4sAOA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

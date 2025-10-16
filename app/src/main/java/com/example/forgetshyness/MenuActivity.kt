@@ -1,0 +1,84 @@
+package com.example.forgetshyness
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
+import com.example.forgetshyness.data.FirestoreRepository
+import com.example.forgetshyness.games.GamesMenuScreen
+
+class MenuActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Obtén el nombre del usuario que se pasó desde WelcomeActivity
+        val userName = intent.getStringExtra("USER_NAME") ?: "Usuario"
+        val userId = intent.getStringExtra("USER_ID") ?: ""
+
+        setContent {
+            HomeScreenWithSeed(
+                userName = userName,
+                userId = userId,
+                onNavigateToGames = {
+                    val intent = Intent(this, ParticipantsActivity::class.java)
+                    intent.putExtra("USER_NAME", userName)
+                    intent.putExtra("USER_ID", userId)
+                    startActivity(intent)
+                },
+                onNavigateToRecipes = { /* TODO: ir al módulo recetas */ },
+                onNavigateToEvents = { /* TODO: ir al módulo eventos */ }
+            )
+        }
+    }
+}
+
+@Composable
+fun HomeScreenWithSeed(
+    userName: String,
+    userId: String,
+    onNavigateToGames: () -> Unit,
+    onNavigateToRecipes: () -> Unit,
+    onNavigateToEvents: () -> Unit
+) {
+    val repo = remember { FirestoreRepository() }
+    /* val context = LocalContext.current */
+
+    LaunchedEffect(Unit) {
+        repo.seedChallengesIfEmpty()
+    }
+
+    HomeScreen(
+        userName = userName,
+        userId = userId,
+        onNavigateToGames = onNavigateToGames,
+        onNavigateToRecipes = onNavigateToRecipes,
+        onNavigateToEvents = onNavigateToEvents
+    )
+    /*GamesMenuScreen(   // ✅ ahora abrimos el menú de juegos directamente
+        onAddParticipants = {
+            val intent = Intent(context, ParticipantsActivity::class.java)
+            intent.putExtra("USER_NAME", userName)
+            intent.putExtra("USER_ID", userId)
+            context.startActivity(intent)
+        },
+        onChooseGame = { gameType ->
+            when (gameType) {
+                "ruleta" -> {
+                    val intent = Intent(context, RuletaActivity::class.java)
+                    intent.putExtra("USER_ID", userId)
+                    context.startActivity(intent)
+                }
+                "verdad_o_reto" -> {
+                    val intent = Intent(context, VerdadRetoActivity::class.java)
+                    intent.putExtra("USER_ID", userId)
+                    context.startActivity(intent)
+                }
+            }
+        }
+    ) */
+}
+
