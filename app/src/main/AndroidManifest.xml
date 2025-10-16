@@ -41,7 +41,7 @@
             android:name=".RuletaActivity"
             android:exported="true"/>
         <activity
-            android:name=".VerdadRetoActivity"
+            android:name=".TruthOrDareActivity"
             android:exported="true"/>
         <activity
             android:name=".GamesMenuActivity"

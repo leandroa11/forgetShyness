@@ -6,12 +6,13 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
+import androidx.lifecycle.lifecycleScope
 import com.example.forgetshyness.games.ParticipantsScreen
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.Player
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ParticipantsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,9 +30,12 @@ class ParticipantsActivity : ComponentActivity() {
                 if (userId.isBlank()) {
                     Log.e("ParticipantsActivity", "userId está en blanco, no buscar jugadores")
                 } else {
-                    val loaded = repo.getPlayersByUser(userId)
-                    Log.d("ParticipantsActivity", "loaded players size = ${loaded.size}")
-                    players = loaded
+                    try {
+                        val loaded = repo.getPlayersByUser(userId)
+                        players = loaded
+                    } catch (e: Exception) {
+                        Log.e("ParticipantsActivity", "Error cargando jugadores", e)
+                    }
                 }
             }
 
@@ -41,13 +45,12 @@ class ParticipantsActivity : ComponentActivity() {
                 existingPlayers = players,
                 onAdd = { name ->
                     Log.d("ParticipantsActivity", "onAdd called with name = $name")
-                    CoroutineScope(Dispatchers.IO).launch {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         try {
                             val newId = repo.addPlayer(Player(name = name, userId = userId))
                             Log.d("ParticipantsActivity", "addPlayer returned id = $newId")
                             val updated = repo.getPlayersByUser(userId)
-                            Log.d("ParticipantsActivity", "updated list size = ${updated.size}")
-                            launch(Dispatchers.Main) {
+                            withContext(Dispatchers.Main) {
                                 players = updated
                             }
                         } catch (e: Exception) {
@@ -57,26 +60,26 @@ class ParticipantsActivity : ComponentActivity() {
                 },
                 onDelete = { pid ->
                     Log.d("ParticipantsActivity", "onDelete called pid = $pid")
-                    CoroutineScope(Dispatchers.IO).launch {
-                        repo.deletePlayer(pid)
-                        val updated = repo.getPlayersByUser(userId)
-                        launch(Dispatchers.Main) {
-                            players = updated
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            repo.deletePlayer(pid)
+                            val updated = repo.getPlayersByUser(userId)
+                            withContext(Dispatchers.Main) {
+                                players = updated
+                            }
+                        } catch (e: Exception) {
+                            Log.e("ParticipantsActivity", "Error eliminando jugador", e)
                         }
                     }
                 },
                 onSave = {
-                    // Aquí creas la sesión y agregas participantes
-                    CoroutineScope(Dispatchers.IO).launch {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         try {
                             val sessionId = repo.createGameSession(hostUserId = userId, gameType = "pendiente")
-                            // Agrega host (usuario principal)
                             repo.addParticipantToSession(sessionId, Player(name = userName, userId = userId))
-                            // Agrega otros jugadores
-                            players.forEach { p ->
-                                repo.addParticipantToSession(sessionId, p)
-                            }
-                            launch(Dispatchers.Main) {
+                            players.forEach { p -> repo.addParticipantToSession(sessionId, p) }
+
+                            withContext(Dispatchers.Main) {
                                 val intent = Intent(this@ParticipantsActivity, GamesMenuActivity::class.java)
                                 intent.putExtra("USER_NAME", userName)
                                 intent.putExtra("USER_ID", userId)
@@ -85,15 +88,14 @@ class ParticipantsActivity : ComponentActivity() {
                                 finish()
                             }
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            Log.e("ParticipantsActivity", "Error creando sesión", e)
                         }
                     }
+                },
+                onBackClick = {
+                    finish()
                 }
             )
         }
     }
 }
-
-
-
-

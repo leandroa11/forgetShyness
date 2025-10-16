@@ -1,5 +1,6 @@
 package com.example.forgetshyness
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,12 +9,12 @@ import com.example.forgetshyness.data.Challenge
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.Player
 import com.example.forgetshyness.data.Turn
-import com.example.forgetshyness.games.VerdadORetoScreen
+import com.example.forgetshyness.games.TruthOrDareScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class VerdadRetoActivity : ComponentActivity() {
+class TruthOrDareActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userId = intent.getStringExtra("USER_ID") ?: ""
@@ -28,14 +29,16 @@ class VerdadRetoActivity : ComponentActivity() {
             var challengesAll by remember { mutableStateOf<List<Challenge>>(emptyList()) }
             val repo = remember { FirestoreRepository() }
 
-            LaunchedEffect(Unit) {
-                participantsList = repo.getParticipants(sessionId)
-                challengesAll = repo.getAllChallenges()
+            LaunchedEffect(sessionId) {
+                val participants = repo.getParticipants(sessionId)
+                val challenges = repo.getAllChallenges()
+                participantsList = participants
+                challengesAll = challenges
             }
 
             val participantNames = participantsList.map { it.name }
 
-            VerdadORetoScreen(
+            TruthOrDareScreen(
                 sessionId = sessionId,
                 participants = participantNames,
                 allChallenges = challengesAll,
@@ -51,9 +54,11 @@ class VerdadRetoActivity : ComponentActivity() {
                             ))
                         }
                     }
+                },
+                onBackClick = {
+                    finish()
                 }
             )
         }
     }
 }
-

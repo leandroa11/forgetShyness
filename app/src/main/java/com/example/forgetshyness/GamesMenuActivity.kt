@@ -35,11 +35,17 @@ class GamesMenuActivity : ComponentActivity() {
                         intent.putExtra("SESSION_ID", sessionId)
                         startActivity(intent)
                     } else if (gameType == "verdad_o_reto") {
-                        val intent = Intent(this, VerdadRetoActivity::class.java)
+                        val intent = Intent(this, TruthOrDareActivity::class.java)
                         intent.putExtra("USER_ID", userId)
                         intent.putExtra("SESSION_ID", sessionId)
                         startActivity(intent)
                     }
+                },
+                onBackClick = {
+                    val intent = Intent(this, MenuActivity::class.java)
+                    intent.putExtra("USER_ID", userName)
+                    intent.putExtra("SESSION_ID", sessionId)
+                    startActivity(intent)
                 }
             )
         }

@@ -250,7 +250,7 @@ fun VerificationScreen(
                                 val (activationSuccess, activationMessage) = firestoreRepository.activateUser(userId)
                                 if (activationSuccess) {
                                     Toast.makeText(context, "¡Verificación simulada exitosa!", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(context, WelcomeActivity::class.java).apply {
+                                    val intent = Intent(context, MenuActivity::class.java).apply {
                                         putExtra("USER_NAME", userName)
                                         putExtra("USER_ID", userId)  // Se pasa el userId también
                                     }

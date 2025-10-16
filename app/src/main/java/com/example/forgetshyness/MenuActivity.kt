@@ -2,14 +2,13 @@ package com.example.forgetshyness
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.remember
 import com.example.forgetshyness.data.FirestoreRepository
-import com.example.forgetshyness.games.GamesMenuScreen
 
 class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,6 +17,7 @@ class MenuActivity : ComponentActivity() {
         // Obtén el nombre del usuario que se pasó desde WelcomeActivity
         val userName = intent.getStringExtra("USER_NAME") ?: "Usuario"
         val userId = intent.getStringExtra("USER_ID") ?: ""
+        Log.d("MenuActivity", "User ID: $userId")
 
         setContent {
             HomeScreenWithSeed(
@@ -60,4 +60,3 @@ fun HomeScreenWithSeed(
     )
 
 }
-

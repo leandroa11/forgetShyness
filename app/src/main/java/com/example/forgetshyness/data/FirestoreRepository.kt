@@ -65,6 +65,26 @@ class FirestoreRepository {
         }
     }
 
+    /**
+     * Obtiene un usuario por su número de teléfono.
+     * @param phone El número de teléfono del usuario a buscar.
+     * @return El objeto `User` si se encuentra, o `null` si no existe o hay un error.
+     */
+    suspend fun getUserByPhone(phone: String): User? {
+        return try {
+            val snapshot = usersCollection.whereEqualTo("phone", phone).limit(1).get().await()
+            if (snapshot.isEmpty) {
+                null
+            } else {
+                val document = snapshot.documents.first()
+                val user = document.toObject(User::class.java)
+                user?.copy(id = document.id)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     // ======================
     // JUGADORES
     // ======================
