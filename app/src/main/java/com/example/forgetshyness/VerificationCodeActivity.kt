@@ -195,7 +195,7 @@ fun VerificationScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-            /*
+
             Button(
                 onClick = {
                     val fullCode = code.joinToString("")
@@ -236,72 +236,7 @@ fun VerificationScreen(
                 } else {
                     Text("¡Que empiece la diversión!", fontWeight = FontWeight.Bold)
                 }
-            } */
-
-            //Aquí simulamos la verificación sin usar OTP real
-            Button(
-                onClick = {
-                    val fullCode = code.joinToString("")
-                    if (fullCode.length == 6) {
-                        isLoading = true
-                        coroutineScope.launch {
-                            if (AppConfig.IS_DEVELOPMENT_MODE) {
-                                // 🔧 Modo desarrollo: simulación
-                                val (activationSuccess, activationMessage) = firestoreRepository.activateUser(userId)
-                                if (activationSuccess) {
-                                    Toast.makeText(context, "¡Verificación simulada exitosa!", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(context, MenuActivity::class.java).apply {
-                                        putExtra("USER_NAME", userName)
-                                        putExtra("USER_ID", userId)  // Se pasa el userId también
-                                    }
-                                    context.startActivity(intent)
-                                    activity.finishAffinity()
-                                } else {
-                                    Toast.makeText(context, activationMessage, Toast.LENGTH_LONG).show()
-                                }
-                                isLoading = false
-                            } else {
-                                // 🚀 Modo producción: OTP real
-                                otpManager.verifyOtp(
-                                    code = fullCode,
-                                    onSuccess = {
-                                        coroutineScope.launch {
-                                            val (success, message) = firestoreRepository.activateUser(userId)
-                                            if (success) {
-                                                Toast.makeText(context, "¡Verificación exitosa!", Toast.LENGTH_SHORT).show()
-                                                val intent = Intent(context, WelcomeActivity::class.java).apply {
-                                                    putExtra("USER_NAME", userName)
-                                                    putExtra("USER_ID", userId)
-                                                }
-                                                context.startActivity(intent)
-                                                activity.finishAffinity()
-                                            } else {
-                                                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                                            }
-                                            isLoading = false
-                                        }
-                                    },
-                                    onError = {
-                                        Toast.makeText(context, "Código incorrecto. Inténtalo de nuevo.", Toast.LENGTH_LONG).show()
-                                        isLoading = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107), contentColor = Color.Black),
-                shape = RoundedCornerShape(50),
-                enabled = !isLoading,
-                modifier = Modifier.fillMaxWidth(0.8f).height(50.dp)
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.Black)
-                } else {
-                    Text("¡Que empiece la diversión!", fontWeight = FontWeight.Bold)
-                }
-            }
-
+            } 
 
             Spacer(modifier = Modifier.height(24.dp))
 
