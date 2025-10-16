@@ -58,27 +58,6 @@ fun HomeScreenWithSeed(
         onNavigateToRecipes = onNavigateToRecipes,
         onNavigateToEvents = onNavigateToEvents
     )
-    /*GamesMenuScreen(   // ✅ ahora abrimos el menú de juegos directamente
-        onAddParticipants = {
-            val intent = Intent(context, ParticipantsActivity::class.java)
-            intent.putExtra("USER_NAME", userName)
-            intent.putExtra("USER_ID", userId)
-            context.startActivity(intent)
-        },
-        onChooseGame = { gameType ->
-            when (gameType) {
-                "ruleta" -> {
-                    val intent = Intent(context, RuletaActivity::class.java)
-                    intent.putExtra("USER_ID", userId)
-                    context.startActivity(intent)
-                }
-                "verdad_o_reto" -> {
-                    val intent = Intent(context, VerdadRetoActivity::class.java)
-                    intent.putExtra("USER_ID", userId)
-                    context.startActivity(intent)
-                }
-            }
-        }
-    ) */
+
 }
 

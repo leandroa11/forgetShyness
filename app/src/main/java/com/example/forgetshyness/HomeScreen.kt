@@ -65,7 +65,7 @@ fun HomeScreen(
             MenuCard(
                 title = "Juegos",
                 description = "Descubre juegos interactivos",
-                imageRes = R.drawable.coctel_2,
+                imageRes = R.drawable.icono_boton_juego_coctel_1,
                 onClick = onNavigateToGames
             )
 

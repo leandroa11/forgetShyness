@@ -26,13 +26,13 @@ fun GamesMenuScreen(
         MenuCard(
             title = "Ruleta Picante",
             description = "Gira la ruleta",
-            imageRes = R.drawable.correo,  // pon tu ícono
+            imageRes = R.drawable.ruleta,  // pon tu ícono
             onClick = { onChooseGame("ruleta") }
         )
         MenuCard(
             title = "Verdad o Reto",
             description = "Elige verdad o reto",
-            imageRes = R.drawable.coctel_1,
+            imageRes = R.drawable.verdadr_reto,
             onClick = { onChooseGame("verdad_o_reto") }
         )
         Button(onClick = onAddParticipants, modifier = Modifier.fillMaxWidth()) {
