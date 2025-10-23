@@ -71,14 +71,14 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.Center, // Tarjetas centradas horizontalmente
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                MenuCard(
-                    backgroundColor = Color(0xFFD24B6C),
-                    icon = R.drawable.coctel_2_blanco,
-                    title = "Recetas para la ocasión",
-                    description = "Mezcla la diversión,\nDescubre cocteles que le ponen un sabor único a tus planes.",
-                    onClick = onNavigateToRecipes
-                )
+            ) {MenuCard(
+                backgroundColor = Color(0xFFD24B6C),
+                icon = R.drawable.coctel_2_blanco,
+                title = "Recetas para la ocasión",
+                description = "Mezcla la diversión,\nDescubre cocteles que le ponen un sabor único a tus planes.",
+                onClick = onNavigateToRecipes
+            )
+
 
                 Spacer(modifier = Modifier.width(12.dp)) // Espaciador añadido
 
