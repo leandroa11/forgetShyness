@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.forgetshyness.games.ParticipantsScreen
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.Player
+import com.example.forgetshyness.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,8 +19,8 @@ class ParticipantsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val userName = intent.getStringExtra("USER_NAME") ?: "Usuario"
-        val userId = intent.getStringExtra("USER_ID") ?: ""
+        val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
+        val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
         Log.d("ParticipantsActivity", "onCreate: userName=$userName, userId=$userId")
 
         setContent {
@@ -75,15 +76,19 @@ class ParticipantsActivity : ComponentActivity() {
                 onSave = {
                     lifecycleScope.launch(Dispatchers.IO) {
                         try {
-                            val sessionId = repo.createGameSession(hostUserId = userId, gameType = "pendiente")
+                            val sessionId = repo.createGameSession(
+                                hostUserId = userId,
+                                gameType = Constants.DEFAULT_GAME_TYPE
+                            )
                             repo.addParticipantToSession(sessionId, Player(name = userName, userId = userId))
                             players.forEach { p -> repo.addParticipantToSession(sessionId, p) }
 
                             withContext(Dispatchers.Main) {
-                                val intent = Intent(this@ParticipantsActivity, GamesMenuActivity::class.java)
-                                intent.putExtra("USER_NAME", userName)
-                                intent.putExtra("USER_ID", userId)
-                                intent.putExtra("SESSION_ID", sessionId)
+                                val intent = Intent(this@ParticipantsActivity, GamesMenuActivity::class.java).apply {
+                                    putExtra(Constants.KEY_USER_NAME, userName)
+                                    putExtra(Constants.KEY_USER_ID, userId)
+                                    putExtra(Constants.KEY_SESSION_ID, sessionId)
+                                }
                                 startActivity(intent)
                                 finish()
                             }
@@ -92,9 +97,7 @@ class ParticipantsActivity : ComponentActivity() {
                         }
                     }
                 },
-                onBackClick = {
-                    finish()
-                }
+                onBackClick = { finish() }
             )
         }
     }

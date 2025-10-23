@@ -2,6 +2,7 @@ package com.example.forgetshyness
 
 import android.app.Activity
 import android.content.Intent
+import androidx.compose.ui.res.stringResource
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -43,7 +44,7 @@ class VerificationCodeActivity : ComponentActivity() {
 
         // Comprobación de seguridad: si no hay datos, no se puede continuar
         if (userId == null || userName == null || userPhone == null) {
-            Toast.makeText(this, "Error: Faltan datos del usuario.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.error_missing_user_data), Toast.LENGTH_LONG).show()
             finish()
             return
         }
@@ -91,64 +92,33 @@ fun VerificationScreen(
             isResendEnabled = true
         }
     }
-    /*
-    // Función para enviar el OTP
-    fun sendOtp() {
-        startResendTimer()
-        otpManager.sendOtp(
-            // IMPORTANTE: Asegúrate de que el número tenga el prefijo del país. Ej: "+52..."
-            phoneNumber = "+57$userPhone",
-            activity = activity,
-            onCodeSent = {
-                Toast.makeText(context, "Código enviado al $userPhone", Toast.LENGTH_SHORT).show()
-            },
-            onVerificationFailed = { exception ->
-                android.util.Log.e("OTP_ERROR", "La verificación del teléfono falló", exception)
-                Toast.makeText(context, "Error al enviar código: ${exception.message}", Toast.LENGTH_LONG).show()
-                isResendEnabled = true // Permitir reintento si falla
-            }
-        )
-    }
-
-    // Envía el código automáticamente la primera vez que se muestra la pantalla
-    LaunchedEffect(Unit) {
-        sendOtp()
-    } */
 
     // Simulación para desarrollo
     fun sendOtp() {
         if (AppConfig.IS_DEVELOPMENT_MODE) {
-            // Simulación en desarrollo
-            Toast.makeText(context, "Simulación: OTP enviado correctamente", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.otp_simulation_sent), Toast.LENGTH_SHORT).show()
             startResendTimer()
         } else {
-            // En producción: envía OTP real
             startResendTimer()
             otpManager.sendOtp(
                 phoneNumber = "+57$userPhone",
                 activity = activity,
                 onCodeSent = {
-                    Toast.makeText(context, "Código enviado al $userPhone", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.otp_sent_to, userPhone), Toast.LENGTH_SHORT).show()
                 },
                 onVerificationFailed = { exception ->
                     android.util.Log.e("OTP_ERROR", "Error OTP", exception)
-                    Toast.makeText(context, "Error: ${exception.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.otp_error_prefix) + " ${exception.message}", Toast.LENGTH_LONG).show()
                     isResendEnabled = true
                 }
             )
         }
     }
 
-    // Enviar OTP la primera vez (simulado)
-    /*
-    LaunchedEffect(Unit) {
-        sendOtp()
-    } */
-
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.fondo_burbujas_3),
-            contentDescription = "Fondo de pantalla",
+            contentDescription = stringResource(R.string.background_desc),
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
@@ -160,7 +130,7 @@ fun VerificationScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.flecha_izquierda),
-                contentDescription = "Atrás",
+                contentDescription = stringResource(R.string.back_button_desc),
                 tint = Color.Yellow,
                 modifier = Modifier
                     .size(36.dp)
@@ -170,9 +140,9 @@ fun VerificationScreen(
 
             Spacer(modifier = Modifier.height(80.dp))
 
-            Text("Último toque antes del brindis", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
+            Text(text = stringResource(R.string.verification_title), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Te hemos enviado un código de 6 dígitos para que compruebes que eres tú. Ingresa el código en los siguientes espacios.", fontSize = 14.sp, color = Color.White, textAlign = TextAlign.Center)
+            Text(text = stringResource(R.string.verification_instructions), fontSize = 14.sp, color = Color.White, textAlign = TextAlign.Center)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -207,7 +177,7 @@ fun VerificationScreen(
                                 coroutineScope.launch {
                                     val (activationSuccess, activationMessage) = firestoreRepository.activateUser(userId)
                                     if (activationSuccess) {
-                                        Toast.makeText(context, "¡Verificación exitosa!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.verification_success), Toast.LENGTH_SHORT).show()
                                         val intent = Intent(context, WelcomeActivity::class.java).apply {
                                             putExtra("USER_NAME", userName)
                                         }
@@ -220,7 +190,7 @@ fun VerificationScreen(
                                 }
                             },
                             onError = { exception ->
-                                Toast.makeText(context, "Código incorrecto. Inténtalo de nuevo.", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.verification_error_code), Toast.LENGTH_LONG).show()
                                 isLoading = false
                             }
                         )
@@ -234,13 +204,13 @@ fun VerificationScreen(
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.Black)
                 } else {
-                    Text("¡Que empiece la diversión!", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.verification_button_text), fontWeight = FontWeight.Bold)
                 }
             } 
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("¿No llegó el código?", fontSize = 14.sp, color = Color.White)
+            Text(stringResource(R.string.resend_prompt), fontSize = 14.sp, color = Color.White)
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
@@ -250,7 +220,10 @@ fun VerificationScreen(
                 enabled = isResendEnabled && !isLoading,
                 modifier = Modifier.wrapContentWidth().height(40.dp)
             ) {
-                val text = if (isResendEnabled) "Reenviar código" else "Reenviar en ${countdown}s"
+                val text = if (isResendEnabled)
+                    stringResource(R.string.resend_button)
+                else
+                    stringResource(R.string.resend_countdown, countdown)
                 Text(text, fontWeight = FontWeight.Bold)
             }
         }

@@ -13,12 +13,13 @@ import com.example.forgetshyness.games.TruthOrDareScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.example.forgetshyness.utils.Constants
 
 class TruthOrDareActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val userId = intent.getStringExtra("USER_ID") ?: ""
-        val sessionId = intent.getStringExtra("SESSION_ID") ?: ""
+        val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
+        val sessionId = intent.getStringExtra(Constants.KEY_SESSION_ID) ?: ""
         if (userId.isBlank() || sessionId.isBlank()) {
             finish()
             return
@@ -46,12 +47,15 @@ class TruthOrDareActivity : ComponentActivity() {
                     if (idx in participantsList.indices) {
                         val participant = participantsList[idx]
                         CoroutineScope(Dispatchers.IO).launch {
-                            repo.addTurn(sessionId, Turn(
-                                participantId = participant.id,
-                                challengeId = challenge.id,
-                                liked = null,
-                                timestamp = System.currentTimeMillis()
-                            ))
+                            repo.addTurn(
+                                sessionId,
+                                Turn(
+                                    participantId = participant.id,
+                                    challengeId = challenge.id,
+                                    liked = null,
+                                    timestamp = System.currentTimeMillis()
+                                )
+                            )
                         }
                     }
                 },

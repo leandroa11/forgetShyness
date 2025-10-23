@@ -14,10 +14,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.forgetshyness.R
 
 @Composable
 fun HomeScreen(
@@ -39,7 +41,6 @@ fun HomeScreen(
                 )
             )
     ) {
-        // Fondo de burbujas (imagen decorativa)
         Image(
             painter = painterResource(id = R.drawable.fondo_burbujas_4),
             contentDescription = null,
@@ -47,17 +48,16 @@ fun HomeScreen(
             modifier = Modifier.matchParentSize()
         )
 
-        // Contenido principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp), // Padding vertical eliminado
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Contenido centrado verticalmente
+            verticalArrangement = Arrangement.Center
         ) {
-            // Título con saludo
+            // Saludo
             Text(
-                text = "\"¡Hola, $userName!\n¿Listo para romper el hielo?\"",
+                text = stringResource(R.string.home_greeting, userName),
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 fontSize = 24.sp,
@@ -66,37 +66,37 @@ fun HomeScreen(
                 modifier = Modifier.padding(bottom = 40.dp)
             )
 
-            // Menú de tres tarjetas
+            // Menú principal
             Row(
-                horizontalArrangement = Arrangement.Center, // Tarjetas centradas horizontalmente
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
-            ) {MenuCard(
-                backgroundColor = Color(0xFFD24B6C),
-                icon = R.drawable.coctel_2_blanco,
-                title = "Recetas para la ocasión",
-                description = "Mezcla la diversión,\nDescubre cocteles que le ponen un sabor único a tus planes.",
-                onClick = onNavigateToRecipes
-            )
+            ) {
+                MenuCard(
+                    backgroundColor = Color(0xFFD24B6C),
+                    icon = R.drawable.coctel_2_blanco,
+                    title = stringResource(R.string.recipes_title),
+                    description = stringResource(R.string.recipes_description),
+                    onClick = onNavigateToRecipes
+                )
 
-
-                Spacer(modifier = Modifier.width(12.dp)) // Espaciador añadido
+                Spacer(modifier = Modifier.width(12.dp))
 
                 MenuCard(
                     backgroundColor = Color(0xFFF68C3F),
                     icon = R.drawable.dado,
-                    title = "Juegos interactivos",
-                    description = "Pon a prueba tu ingenio.\nDinámicas y juegos para que las conversaciones no paren.",
+                    title = stringResource(R.string.games_title),
+                    description = stringResource(R.string.games_description),
                     onClick = onNavigateToGames
                 )
 
-                Spacer(modifier = Modifier.width(12.dp)) // Espaciador añadido
+                Spacer(modifier = Modifier.width(12.dp))
 
                 MenuCard(
                     backgroundColor = Color(0xFFB06B9A),
                     icon = R.drawable.calendario_blanco,
-                    title = "Asistente de planificación",
-                    description = "Organiza la reunión.\nEncuentra licorerías y prepara tus eventos sin excusas.",
+                    title = stringResource(R.string.events_title),
+                    description = stringResource(R.string.events_description),
                     onClick = onNavigateToEvents
                 )
             }
@@ -143,6 +143,7 @@ fun MenuCard(
         )
     }
 }
+
 
 
 

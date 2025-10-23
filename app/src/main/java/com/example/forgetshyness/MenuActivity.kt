@@ -9,14 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.example.forgetshyness.data.FirestoreRepository
+import com.example.forgetshyness.utils.Constants
 
 class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Obtén el nombre del usuario que se pasó desde WelcomeActivity
-        val userName = intent.getStringExtra("USER_NAME") ?: "Usuario"
-        val userId = intent.getStringExtra("USER_ID") ?: ""
+        // Obtener datos del Intent usando constantes
+        val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
+        val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
         Log.d("MenuActivity", "User ID: $userId")
 
         setContent {
@@ -24,9 +25,10 @@ class MenuActivity : ComponentActivity() {
                 userName = userName,
                 userId = userId,
                 onNavigateToGames = {
-                    val intent = Intent(this, ParticipantsActivity::class.java)
-                    intent.putExtra("USER_NAME", userName)
-                    intent.putExtra("USER_ID", userId)
+                    val intent = Intent(this, ParticipantsActivity::class.java).apply {
+                        putExtra(Constants.KEY_USER_NAME, userName)
+                        putExtra(Constants.KEY_USER_ID, userId)
+                    }
                     startActivity(intent)
                 },
                 onNavigateToRecipes = { /* TODO: ir al módulo recetas */ },
@@ -45,7 +47,6 @@ fun HomeScreenWithSeed(
     onNavigateToEvents: () -> Unit
 ) {
     val repo = remember { FirestoreRepository() }
-    /* val context = LocalContext.current */
 
     LaunchedEffect(Unit) {
         repo.seedChallengesIfEmpty()
@@ -58,5 +59,5 @@ fun HomeScreenWithSeed(
         onNavigateToRecipes = onNavigateToRecipes,
         onNavigateToEvents = onNavigateToEvents
     )
-
 }
+

@@ -100,7 +100,7 @@ fun GamesMenuScreen(
                     icon = R.drawable.ruleta,
                     title = "Ruleta Picante",
                     description = "Gira la ruleta y descubre retos atrevidos que subirán la temperatura de tu noche",
-                    onClick = { onChooseGame("ruleta_picante") }
+                    onClick = { onChooseGame("ruleta") }
                 )
 
                 GameCard(

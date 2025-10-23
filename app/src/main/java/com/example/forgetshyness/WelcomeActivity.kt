@@ -1,6 +1,7 @@
 package com.example.forgetshyness
 
 import android.content.Intent
+import androidx.compose.ui.res.stringResource
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -63,7 +64,7 @@ fun WelcomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "¡Bienvenido(a),",
+                text = stringResource(R.string.welcome_title),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Light,
                 color = Color.White
@@ -79,12 +80,12 @@ fun WelcomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
             Image(
                 painter = painterResource(id = R.drawable.coctel_1),
-                contentDescription = "Brindis",
+                contentDescription = stringResource(R.string.welcome_image_desc),
                 modifier = Modifier.size(150.dp)
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "¡Es hora de socializar y romper el hielo!",
+                text = stringResource(R.string.welcome_message),
                 fontSize = 20.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center
@@ -102,7 +103,7 @@ fun WelcomeScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFD54F))
             ) {
                 Text(
-                    text = "Ir al Menú",
+                    text = stringResource(R.string.go_to_menu),
                     fontSize = 18.sp,
                     color = Color.Black
                 )
