@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">ForgetShyness</string>
+    <string name="slogan1">Olvida la timidez...</string>
+    <string name="slogan2">Recuerda la diversión</string>
+    <string name="description">Un toque de juego, una pizca de sabor y mucha conexión</string>
+    <string name="enter_button">Entrar a la experiencia</string>
+
+    <!-- WelcomoActivity -->
+    <string name="welcome_title">¡Bienvenido(a),</string>
+    <string name="welcome_image_desc">Brindis</string>
+    <string name="welcome_message">¡Es hora de socializar y romper el hielo!</string>
+    <string name="go_to_menu">Ir al Menú</string>
+
+    <!-- VerificationCodeActivity -->
+    <string name="error_missing_user_data">Error: Faltan datos del usuario.</string>
+    <string name="otp_simulation_sent">Simulación: OTP enviado correctamente</string>
+    <string name="otp_sent_to">Código enviado al %1$s</string>
+    <string name="otp_error_prefix">Error:</string>
+    <string name="background_desc">Fondo de pantalla</string>
+    <string name="back_button_desc">Atrás</string>
+    <string name="verification_title">Último toque antes del brindis</string>
+    <string name="verification_instructions">
+    Te hemos enviado un código de 6 dígitos para que compruebes que eres tú. Ingresa el código en los siguientes espacios.
+</string>
+    <string name="verification_success">¡Verificación exitosa!</string>
+    <string name="verification_error_code">Código incorrecto. Inténtalo de nuevo.</string>
+    <string name="verification_button_text">¡Que empiece la diversión!</string>
+    <string name="resend_prompt">¿No llegó el código?</string>
+    <string name="resend_button">Reenviar código</string>
+    <string name="resend_countdown">Reenviar en %1$ds</string>
+
+    <!-- MainActivity -->
+    <string name="error_only_numbers">Solo se admiten números.</string>
+    <string name="error_ten_digits">Debe tener 10 dígitos.</string>
+    <string name="phone_placeholder">Número de teléfono</string>
+    <string name="button_enter">Entrar</string>
+
+    <!-- HomeScreen -->
+    <string name="home_greeting">¡Hola, %1$s!\n¿Listo para romper el hielo?</string>
+
+    <!-- Tarjetas del menú principal -->
+    <string name="recipes_title">Recetas para la ocasión</string>
+    <string name="recipes_description">Mezcla la diversión,\nDescubre cocteles que le ponen un sabor único a tus planes.</string>
+
+    <string name="games_title">Juegos interactivos</string>
+    <string name="games_description">Pon a prueba tu ingenio.\nDinámicas y juegos para que las conversaciones no paren.</string>
+
+    <string name="events_title">Asistente de planificación</string>
+    <string name="events_description">Organiza la reunión.\nEncuentra licorerías y prepara tus eventos sin excusas.</string>
+
+</resources>
