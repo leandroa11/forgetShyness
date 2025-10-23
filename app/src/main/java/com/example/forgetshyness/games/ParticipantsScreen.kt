@@ -25,13 +25,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.forgetshyness.R
 import com.example.forgetshyness.data.Player
-
+import androidx.compose.ui.res.stringResource
 @Composable
 fun ParticipantsScreen(
     userName: String,
@@ -72,7 +75,7 @@ fun ParticipantsScreen(
         ) {
             Icon(
                 painter = painterResource(id = com.example.forgetshyness.R.drawable.flecha_izquierda),
-                contentDescription = "Volver",
+                contentDescription = stringResource(R.string.content_description_back),
                 tint = Color.Yellow,
                 modifier = Modifier.size(32.dp)
             )
@@ -88,7 +91,7 @@ fun ParticipantsScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                 Text(
-                    text = "Añadir jugadores",
+                    text = stringResource(R.string.participants_title),
                     fontSize = 26.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center
@@ -106,7 +109,7 @@ fun ParticipantsScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Aún no has añadido jugadores. ¿Quién va a jugar?",
+                    text = stringResource(R.string.participants_empty_message),
                     color = Color.White,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center
@@ -148,7 +151,7 @@ fun ParticipantsScreen(
                             Text(text = player.name, color = Color.White)
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Eliminar",
+                                contentDescription = LocalContext.current.getString(R.string.content_description_delete),
                                 tint = Color.White,
                                 modifier = Modifier
                                     .size(20.dp)
@@ -173,12 +176,12 @@ fun ParticipantsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Añadir",
+                        contentDescription = stringResource(R.string.dialog_add_button),
                         tint = Color(0xFF6C3905)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Añadir Jugador",
+                        text = stringResource(R.string.button_add_player),
                         color = Color(0xFF6C3905),
                         fontWeight = FontWeight.Bold
                     )
@@ -197,7 +200,7 @@ fun ParticipantsScreen(
                 )
             ) {
                 Text(
-                    text = "Listo que empiece la diversión",
+                    text = stringResource(R.string.button_start_fun),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold
                 )
@@ -217,20 +220,20 @@ fun ParticipantsScreen(
                             showAddDialog = false
                         }
                     }) {
-                        Text("Agregar")
+                        Text(stringResource(R.string.dialog_add_button_))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showAddDialog = false }) {
-                        Text("Cancelar")
+                        Text(stringResource(R.string.dialog_cancel_button))
                     }
                 },
-                title = { Text("Nuevo jugador") },
+                title = { Text(stringResource(R.string.dialog_new_player_title)) },
                 text = {
                     OutlinedTextField(
                         value = inputName,
                         onValueChange = { inputName = it },
-                        placeholder = { Text("Nombre del jugador") },
+                        placeholder = { Text(stringResource(R.string.dialog_player_name_)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )

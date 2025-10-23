@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
-import androidx.media3.common.util.Log
 import com.example.forgetshyness.data.Challenge
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.Player

@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -124,8 +125,8 @@ fun ExperienceFormScreen() {
         ) {
             Spacer(Modifier.height(40.dp))
 
-            Text("Antes de brindar...", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text("Cuéntanos quien eres", fontSize = 22.sp, color = Color.White)
+            Text(stringResource(R.string.experience_title_1), fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(stringResource(R.string.experience_title_2), fontSize = 22.sp, color = Color.White)
 
             Spacer(Modifier.height(32.dp))
 
@@ -133,7 +134,7 @@ fun ExperienceFormScreen() {
             FormField(
                 value = name,
                 onValueChange = { name = it; nameError = validateName(it) },
-                label = "Nombre Completo",
+                label = stringResource(R.string.form_label_name),
                 error = nameError,
                 icon = R.drawable.coctel_1,
                 enabled = !isLoading
@@ -142,7 +143,7 @@ fun ExperienceFormScreen() {
             FormField(
                 value = phone,
                 onValueChange = { phone = it; phoneError = validatePhone(it) },
-                label = "Teléfono",
+                label = stringResource(R.string.form_label_phone),
                 error = phoneError,
                 icon = R.drawable.telefono,
                 keyboardType = KeyboardType.Phone,
@@ -152,7 +153,7 @@ fun ExperienceFormScreen() {
             FormField(
                 value = age,
                 onValueChange = { age = it; ageError = validateAge(it) },
-                label = "Edad",
+                label = stringResource(R.string.form_label_age),
                 error = ageError,
                 icon = R.drawable.calendario,
                 keyboardType = KeyboardType.Number,
@@ -162,7 +163,7 @@ fun ExperienceFormScreen() {
             FormField(
                 value = email,
                 onValueChange = { email = it; emailError = validateEmail(it) },
-                label = "Correo",
+                label = stringResource(R.string.form_label_email),
                 error = emailError,
                 icon = R.drawable.correo,
                 keyboardType = KeyboardType.Email,
@@ -220,7 +221,7 @@ fun ExperienceFormScreen() {
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("¡Listo para Mezclarme!", color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.button_submit), color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -232,11 +233,11 @@ fun ExperienceFormScreen() {
             ) {
                 Image(
                     painter = painterResource(R.drawable.flecha_izquierda),
-                    contentDescription = "Volver atrás",
+                    contentDescription = stringResource(R.string.content_desc_back_button),
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(6.dp))
-                Text("¿Aún eres muy tímido?", color = Color.White)
+                Text(stringResource(R.string.back_text_shy), color = Color.White)
             }
         }
     }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.utils.Constants
+import androidx.compose.ui.platform.LocalContext
 
 class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,9 +48,10 @@ fun HomeScreenWithSeed(
     onNavigateToEvents: () -> Unit
 ) {
     val repo = remember { FirestoreRepository() }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        repo.seedChallengesIfEmpty()
+        repo.seedChallengesIfEmpty(context)
     }
 
     HomeScreen(

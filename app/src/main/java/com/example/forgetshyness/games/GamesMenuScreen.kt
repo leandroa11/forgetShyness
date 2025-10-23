@@ -20,12 +20,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.forgetshyness.MenuCard
 import com.example.forgetshyness.R
+import androidx.compose.ui.res.stringResource
 
 
 @Composable
@@ -79,7 +81,7 @@ fun GamesMenuScreen(
         ) {
             // Título principal
             Text(
-                text = "Juegos\nInteractivos",
+                text =stringResource(R.string.games_menu_title),
                 color = Color.White,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Medium,
@@ -98,16 +100,16 @@ fun GamesMenuScreen(
                 GameCard(
                     backgroundColor = Color(0xFFD24B6C),
                     icon = R.drawable.ruleta,
-                    title = "Ruleta Picante",
-                    description = "Gira la ruleta y descubre retos atrevidos que subirán la temperatura de tu noche",
+                    title = stringResource(R.string.game_ruleta_title),
+                    description = stringResource(R.string.game_ruleta_description),
                     onClick = { onChooseGame("ruleta") }
                 )
 
                 GameCard(
                     backgroundColor = Color(0xFF9A6CD6),
                     icon = R.drawable.verdadr_reto,
-                    title = "Verdad o Reto",
-                    description = "Escoge sabiamente ¿Qué prefieres? ¿Confesar tu verdad más íntima o aceptar un reto picante? ¡Listo para romper el hielo?",
+                    title = stringResource(R.string.game_verdad_reto_title),
+                    description = stringResource(R.string.game_verdad_reto_description),
                     onClick = { onChooseGame("verdad_o_reto") }
                 )
             }
@@ -127,7 +129,7 @@ fun GamesMenuScreen(
                 )
             ) {
                 Text(
-                    text = "Añadir Participantes...",
+                    text = stringResource(R.string.button_add_participants),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )

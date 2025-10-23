@@ -1,7 +1,9 @@
 package com.example.forgetshyness.data
 
+import com.example.forgetshyness.R
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import android.content.Context
 
 class FirestoreRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -135,14 +137,14 @@ class FirestoreRepository {
     /**
      * Inserta los retos y verdades por defecto si la colección está vacía.
      */
-    suspend fun seedChallengesIfEmpty() {
+    suspend fun seedChallengesIfEmpty(context: Context) {
         val snapshot = challengesCollection.get().await()
         if (snapshot.isEmpty) {
             val challenges = listOf(
-                Challenge(type = "reto", text = "Haz 10 sentadillas"),
-                Challenge(type = "reto", text = "Imita a alguien famoso por 30 segundos"),
-                Challenge(type = "verdad", text = "¿Cuál ha sido tu momento más vergonzoso?"),
-                Challenge(type = "verdad", text = "¿Qué es lo más loco que has hecho por amor?")
+                Challenge(type = "reto", text = context.getString(R.string.challenge_squats)),
+                Challenge(type = "reto", text = context.getString(R.string.challenge_imitation)),
+                Challenge(type = "verdad", text = context.getString(R.string.challenge_embarrassing)),
+                Challenge(type = "verdad", text = context.getString(R.string.challenge_crazy_love))
             )
             challenges.forEach { challenge ->
                 val docRef = challengesCollection.add(challenge).await()

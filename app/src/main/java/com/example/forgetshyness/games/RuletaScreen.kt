@@ -29,6 +29,7 @@ import com.example.forgetshyness.data.Player
 import kotlinx.coroutines.launch
 import kotlin.math.*
 import kotlin.random.Random
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun RuletaScreen(
@@ -99,7 +100,7 @@ fun RuletaScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.flecha_izquierda),
-                contentDescription = "Volver",
+                contentDescription = stringResource(R.string.content_description_back),
                 tint = Color.Yellow,
                 modifier = Modifier.size(28.dp)
             )
@@ -113,7 +114,7 @@ fun RuletaScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Ruleta Picante 🔥",
+                text = stringResource(R.string.roulette_title),
                 color = Color.White,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.ExtraBold
@@ -262,7 +263,7 @@ fun RuletaScreen(
                     .height(55.dp)
             ) {
                 Text(
-                    text = "Girar Ruleta",
+                    text = stringResource(R.string.button_spin_roulette),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -281,7 +282,10 @@ fun RuletaScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${currentPlayer.name}, tu reto es:",
+                            text = stringResource(
+                                R.string.dialog_challenge_text,
+                                currentPlayer.name
+                            ),
                             color = Color.Black,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
@@ -306,7 +310,7 @@ fun RuletaScreen(
                             }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.like),
-                                    contentDescription = "Me gusta",
+                                    contentDescription = stringResource(R.string.content_description_like),
                                     tint = Color(0xFFFF9800),
                                     modifier = Modifier.size(42.dp)
                                 )
@@ -318,7 +322,7 @@ fun RuletaScreen(
                             }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.dislike),
-                                    contentDescription = "No me gusta",
+                                    contentDescription = stringResource(R.string.content_description_dislike),
                                     tint = Color(0xFFB3405F),
                                     modifier = Modifier.size(42.dp)
                                 )

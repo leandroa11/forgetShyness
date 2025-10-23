@@ -16,10 +16,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.forgetshyness.R
 import com.example.forgetshyness.data.Challenge
 
 @Composable
@@ -49,7 +51,7 @@ fun TruthOrDareScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Cargando jugadores...",
+                text = stringResource(R.string.Loading_players),
                 color = Color.White,
                 fontSize = 18.sp
             )
@@ -86,7 +88,7 @@ fun TruthOrDareScreen(
         ) {
             Icon(
                 painter = painterResource(id = com.example.forgetshyness.R.drawable.flecha_izquierda),
-                contentDescription = "Volver",
+                contentDescription = stringResource(id = R.string.content_description_back),
                 tint = Color.Yellow,
                 modifier = Modifier.size(28.dp)
             )
@@ -101,7 +103,7 @@ fun TruthOrDareScreen(
         ) {
             // Título principal
             Text(
-                text = "Verdad o Reto",
+                text = stringResource(R.string.truth_or_dare_title),
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
@@ -121,7 +123,7 @@ fun TruthOrDareScreen(
 
             // Texto de descripción
             Text(
-                text = "¿Confesar tus secretos o aceptar un reto picante?",
+                text = stringResource(R.string.truth_or_dare_description),
                 color = Color.White,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -131,7 +133,7 @@ fun TruthOrDareScreen(
 
             // Nombre del participante actual
             Text(
-                text = "${participants[currentIndex]} ¿Qué eliges?",
+                text = stringResource(R.string.participant_prompt, participants[currentIndex]),
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -153,7 +155,7 @@ fun TruthOrDareScreen(
                     .height(48.dp)
             ) {
                 Text(
-                    text = "Elijo verdad 😇",
+                    text = stringResource(R.string.truth_choice),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold
                 )
@@ -173,7 +175,7 @@ fun TruthOrDareScreen(
                     .height(48.dp)
             ) {
                 Text(
-                    text = "Elijo reto 😈",
+                    text = stringResource(R.string.dare_choice),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold
                 )
@@ -192,7 +194,7 @@ fun TruthOrDareScreen(
                     .height(48.dp)
             ) {
                 Text(
-                    text = "Que sea aleatorio 🔀",
+                    text = stringResource(R.string.random_choice),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold
                 )
@@ -222,7 +224,7 @@ fun TruthOrDareScreen(
                             .height(48.dp)
                     ) {
                         Text(
-                            text = "Continuar",
+                            text = stringResource(R.string.carry_on),
                             color = Color(0xFF6C3905),
                             fontWeight = FontWeight.Bold
                         )

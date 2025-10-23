@@ -48,4 +48,61 @@
     <string name="events_title">Asistente de planificación</string>
     <string name="events_description">Organiza la reunión.\nEncuentra licorerías y prepara tus eventos sin excusas.</string>
 
+    <!-- Menu Juegos -->
+    <string name="games_menu_title">Juegos\nInteractivos</string>
+    <string name="game_ruleta_title">Ruleta Picante</string>
+    <string name="game_ruleta_description">Gira la ruleta y descubre retos atrevidos que subirán la temperatura de tu noche</string>
+    <string name="game_verdad_reto_title">Verdad o Reto</string>
+    <string name="game_verdad_reto_description">Escoge sabiamente ¿Qué prefieres? ¿Confesar tu verdad más íntima o aceptar un reto picante? ¡Listo para romper el hielo?</string>
+    <string name="button_add_participants">Añadir Participantes...</string>
+
+    <!-- Participantes -->
+    <string name="content_description_back">Volver</string>
+    <string name="participants_title">Añadir jugadores</string>
+    <string name="participants_empty_message">Aún no has añadido jugadores. ¿Quién va a jugar?</string>
+    <string name="content_description_delete">Eliminar</string>
+    <string name="dialog_add_button">Añadir</string>
+    <string name="button_add_player">Añadir Jugador</string>
+    <string name="button_start_fun">Listo que empiece la diversión</string>
+    <string name="dialog_new_player_title">Nuevo jugador</string>
+    <string name="dialog_cancel_button">Cancelar</string>
+    <string name="dialog_player_name_">Nombre del jugador</string>
+    <string name="dialog_add_button_">Agregar</string>
+
+    <!-- Juego Ruleta -->
+    <string name="roulette_title">Ruleta Picante 🔥</string>
+    <string name="button_spin_roulette">Girar Ruleta</string>
+    <string name="content_description_like">Me gusta</string>
+    <string name="content_description_dislike">No me gusta</string>
+    <string name="dialog_challenge_text">%1$s, tu reto es:</string>
+
+    <!-- Entrada a la experiencia -->
+    <string name="experience_title_1">Antes de brindar...</string>
+    <string name="experience_title_2">Cuéntanos quien eres</string>
+    <string name="form_label_name">Nombre Completo</string>
+    <string name="form_label_phone">Teléfono</string>
+    <string name="form_label_age">Edad</string>
+    <string name="form_label_email">Correo</string>
+    <string name="button_submit">¡Listo para Mezclarme!</string>
+    <string name="content_desc_back_button">Volver atrás</string>
+    <string name="back_text_shy">¿Aún eres muy tímido?</string>
+
+
+    <!-- Juego Verdad o Reto -->
+    <string name="truth_or_dare_title">Verdad o Reto</string>
+    <string name="truth_or_dare_description">¿Confesar tus secretos o aceptar un reto picante?</string>
+    <string name="participant_prompt">%1$s ¿Qué eliges?</string>
+    <string name="truth_choice">Elijo verdad 😇</string>
+    <string name="dare_choice">Elijo reto 😈</string>
+    <string name="random_choice">Que sea aleatorio 🔀</string>
+    <string name="carry_on">Continuar</string>
+    <string name="Loading_players">Cargando jugadores...</string>
+    <string name="challenge_squats">Haz 10 sentadillas</string>
+    <string name="challenge_imitation">Imita a alguien famoso por 30 segundos</string>
+    <string name="challenge_embarrassing">¿Cuál ha sido tu momento más vergonzoso?</string>
+    <string name="challenge_crazy_love">¿Qué es lo más loco que has hecho por amor?</string>
+
+
+    -- <!-- Verdad o Reto -->
+
 </resources>
