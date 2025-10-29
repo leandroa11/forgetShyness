@@ -5,15 +5,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.forgetshyness.games.GamesMenuScreen
+import com.example.forgetshyness.utils.Constants
 
 class GamesMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val userName = intent.getStringExtra("USER_NAME") ?: ""
-        val userId = intent.getStringExtra("USER_ID") ?: ""
-        val sessionId = intent.getStringExtra("SESSION_ID") ?: ""
 
-        // Validación
+        // ✅ Recuperamos correctamente los valores con las constantes
+        val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: ""
+        val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
+        val sessionId = intent.getStringExtra(Constants.KEY_SESSION_ID) ?: ""
+
+        // ✅ Validamos que vengan todos los datos
         if (userId.isBlank() || sessionId.isBlank()) {
             finish()
             return
@@ -22,34 +25,46 @@ class GamesMenuActivity : ComponentActivity() {
         setContent {
             GamesMenuScreen(
                 onAddParticipants = {
-                    // Lógica para volver a agregar participantes (opcional)
-                    val intent = Intent(this, ParticipantsActivity::class.java)
-                    intent.putExtra("USER_NAME", userName)
-                    intent.putExtra("USER_ID", userId)
+                    val intent = Intent(this, ParticipantsActivity::class.java).apply {
+                        putExtra(Constants.KEY_USER_NAME, userName)
+                        putExtra(Constants.KEY_USER_ID, userId)
+                        putExtra(Constants.KEY_SESSION_ID, sessionId)
+                    }
                     startActivity(intent)
                 },
                 onChooseGame = { gameType ->
-                    if (gameType == "ruleta") {
-                        val intent = Intent(this, RuletaActivity::class.java)
-                        intent.putExtra("USER_ID", userId)
-                        intent.putExtra("SESSION_ID", sessionId)
-                        startActivity(intent)
-                    } else if (gameType == "verdad_o_reto") {
-                        val intent = Intent(this, TruthOrDareActivity::class.java)
-                        intent.putExtra("USER_ID", userId)
-                        intent.putExtra("SESSION_ID", sessionId)
-                        startActivity(intent)
+                    when (gameType) {
+                        "ruleta" -> {
+                            val intent = Intent(this, RuletaActivity::class.java).apply {
+                                putExtra(Constants.KEY_USER_NAME, userName) // ✅ agregado
+                                putExtra(Constants.KEY_USER_ID, userId)
+                                putExtra(Constants.KEY_SESSION_ID, sessionId)
+                            }
+                            startActivity(intent)
+                        }
+
+                        "verdad_o_reto" -> {
+                            val intent = Intent(this, TruthOrDareActivity::class.java).apply {
+                                putExtra(Constants.KEY_USER_NAME, userName) // ✅ agregado
+                                putExtra(Constants.KEY_USER_ID, userId)
+                                putExtra(Constants.KEY_SESSION_ID, sessionId)
+                            }
+                            startActivity(intent)
+                        }
                     }
                 },
                 onBackClick = {
-                    val intent = Intent(this, MenuActivity::class.java)
-                    intent.putExtra("USER_ID", userName)
-                    intent.putExtra("SESSION_ID", sessionId)
+                    val intent = Intent(this, MenuActivity::class.java).apply {
+                        putExtra(Constants.KEY_USER_NAME, userName)
+                        putExtra(Constants.KEY_USER_ID, userId)
+                        putExtra(Constants.KEY_SESSION_ID, sessionId)
+                    }
                     startActivity(intent)
                 }
             )
         }
     }
 }
+
 
 

@@ -5,6 +5,8 @@
     <string name="description">Un toque de juego, una pizca de sabor y mucha conexión</string>
     <string name="enter_button">Entrar a la experiencia</string>
 
+    <string name="google_maps_key" translatable="false">AIzaSyAVa8psYpBrk1nzytaoZyAHO6OGCjSkpSY</string>
+
     <!-- WelcomoActivity -->
     <string name="welcome_title">¡Bienvenido(a),</string>
     <string name="welcome_image_desc">Brindis</string>

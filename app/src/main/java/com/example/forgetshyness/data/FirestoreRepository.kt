@@ -1,167 +1,104 @@
 package com.example.forgetshyness.data
 
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
 class FirestoreRepository {
+
     private val db = FirebaseFirestore.getInstance()
+
     private val usersCollection = db.collection("users")
-    private val playersCollection = db.collection("players")
     private val challengesCollection = db.collection("challenges")
     private val sessionsCollection = db.collection("game_sessions")
 
+    private val eventsCollection = db.collection("events")
 
-    /**
-     * Guarda un usuario después de comprobar si el teléfono y el correo electrónico son duplicados.
-     * Esta es una función de suspensión, por lo que debe ser llamada desde una corrutina.
-     * @return Un Triple que contiene el estado de éxito (Booleano), un mensaje (String), y el ID del usuario (String?).
-     */
-    suspend fun saveUser(user: User): Triple<Boolean, String, String?> {
-        try {
-            // 1. Comprueba si existe un usuario con el mismo número de teléfono
-            val phoneQuery = usersCollection.whereEqualTo("phone", user.phone).get().await()
-            if (!phoneQuery.isEmpty) {
-                return Triple(false, "El teléfono ya está registrado.", null)
-            }
 
-            // 2. Si el teléfono es único, comprueba si el correo electrónico existe
-            val emailQuery = usersCollection.whereEqualTo("email", user.email).get().await()
-            if (!emailQuery.isEmpty) {
-                return Triple(false, "El correo electrónico ya está registrado.", null)
-            }
+    // -----------------------------
+    // USERS
+    // -----------------------------
+    suspend fun addUser(user: User) {
+        usersCollection.document(user.id).set(user).await()
+    }
 
-            // 3. Si ambos son únicos, añade el nuevo usuario y devuelve su ID
-            val documentReference = usersCollection.add(user).await()
-            return Triple(true, "¡Bienvenido! Información guardada.", documentReference.id)
-
-        } catch (e: Exception) {
-            return Triple(false, "Error: ${e.message}", null)
-        }
+    suspend fun getUser(userId: String): User? {
+        val snapshot = usersCollection.document(userId).get().await()
+        return snapshot.toObject(User::class.java)
     }
 
     /**
-     * Activa un usuario cambiando su estado a 'true' en la base de datos.
-     * @param userId El ID del documento del usuario en Firestore.
-     * @return Un Par que contiene el estado de éxito (Booleano) y un mensaje (String).
+     * Activa al usuario después de verificar su código OTP.
+     * Retorna Pair(éxito, mensaje)
      */
     suspend fun activateUser(userId: String): Pair<Boolean, String> {
         return try {
-            usersCollection.document(userId).update("state", true).await()
-            Pair(true, "Usuario activado correctamente.")
+            val userRef = usersCollection.document(userId)
+            val snapshot = userRef.get().await()
+
+            if (!snapshot.exists()) {
+                Pair(false, "El usuario no existe en la base de datos.")
+            } else {
+                userRef.update("active", true).await()
+                Pair(true, "Usuario activado correctamente.")
+            }
         } catch (e: Exception) {
             Pair(false, "Error al activar el usuario: ${e.message}")
         }
     }
 
-    /**
-     * Obtiene un usuario por su ID.
-     */
-    suspend fun getUserById(userId: String): User? {
-        return try {
-            val snapshot = usersCollection.document(userId).get().await()
-            snapshot.toObject(User::class.java)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    /**
-     * Obtiene un usuario por su número de teléfono.
-     * @param phone El número de teléfono del usuario a buscar.
-     * @return El objeto `User` si se encuentra, o `null` si no existe o hay un error.
-     */
     suspend fun getUserByPhone(phone: String): User? {
         return try {
-            val snapshot = usersCollection.whereEqualTo("phone", phone).limit(1).get().await()
-            if (snapshot.isEmpty) {
-                null
-            } else {
-                val document = snapshot.documents.first()
-                val user = document.toObject(User::class.java)
-                user?.copy(id = document.id)
-            }
+            val snapshot = usersCollection
+                .whereEqualTo("phone", phone)
+                .get()
+                .await()
+
+            if (snapshot.isEmpty) null
+            else snapshot.documents.first().toObject(User::class.java)
         } catch (e: Exception) {
             null
         }
     }
 
-    // ======================
-    // JUGADORES
-    // ======================
+    suspend fun saveUser(user: User): Triple<Boolean, String, String?> {
+        return try {
+            // Verificar si ya existe un usuario con el mismo teléfono
+            val existingUserSnapshot = usersCollection
+                .whereEqualTo("phone", user.phone)
+                .get()
+                .await()
 
-    /**
-     * Agrega un jugador asociado al usuario principal.
-     */
-    suspend fun addPlayer(player: Player): String {
-        require(player.userId.isNotBlank()) { "El userId no puede estar vacío" }
-
-        val docRef = playersCollection.add(player).await()
-        val generatedId = docRef.id
-
-        playersCollection.document(generatedId)
-            .update(mapOf(
-                "id" to generatedId,
-                "userId" to player.userId
-            ))
-            .await()
-
-        return generatedId
-    }
-
-
-
-
-    /**
-     * Obtiene todos los jugadores creados por un usuario.
-     */
-    suspend fun getPlayersByUser(userId: String): List<Player> {
-        val snapshot = playersCollection
-            .whereEqualTo("userId", userId)
-            .get().await()
-        return snapshot.documents.mapNotNull { it.toObject(Player::class.java) }
-    }
-
-    /**
-     * Elimina un jugador específico.
-     */
-    suspend fun deletePlayer(playerId: String) {
-        playersCollection.document(playerId).delete().await()
-    }
-
-    // ======================
-    // RETOS Y VERDADES
-    // ======================
-
-    /**
-     * Inserta los retos y verdades por defecto si la colección está vacía.
-     */
-    suspend fun seedChallengesIfEmpty() {
-        val snapshot = challengesCollection.get().await()
-        if (snapshot.isEmpty) {
-            val challenges = listOf(
-                Challenge(type = "reto", text = "Haz 10 sentadillas"),
-                Challenge(type = "reto", text = "Imita a alguien famoso por 30 segundos"),
-                Challenge(type = "verdad", text = "¿Cuál ha sido tu momento más vergonzoso?"),
-                Challenge(type = "verdad", text = "¿Qué es lo más loco que has hecho por amor?")
-            )
-            challenges.forEach { challenge ->
-                val docRef = challengesCollection.add(challenge).await()
-                val generated = docRef.id
-                challengesCollection.document(generated)
-                    .update("id", generated)
-                    .await()
+            if (!existingUserSnapshot.isEmpty) {
+                // Ya existe un usuario con ese teléfono
+                val existingUser = existingUserSnapshot.documents.first().toObject(User::class.java)
+                return Triple(true, "Usuario ya registrado", existingUser?.id)
             }
+
+            // Si no existe, crear nuevo usuario
+            val userId = user.id.ifEmpty { usersCollection.document().id }
+            val userToSave = user.copy(id = userId)
+
+            usersCollection.document(userId).set(userToSave).await()
+
+            Triple(true, "Usuario registrado correctamente", userId)
+
+        } catch (e: Exception) {
+            Triple(false, "Error al guardar usuario: ${e.message}", null)
         }
     }
 
-    /**
-     * Obtiene los desafíos filtrados por tipo ("reto" o "verdad").
-     */
-    suspend fun getChallengesByType(type: String): List<Challenge> {
-        val snapshot = challengesCollection
-            .whereEqualTo("type", type)
-            .get().await()
-        return snapshot.documents.mapNotNull { it.toObject(Challenge::class.java) }
+    // -----------------------------
+    // CHALLENGES
+    // -----------------------------
+    suspend fun initializeChallengesIfEmpty(defaultChallenges: List<Challenge>) {
+        val snapshot = challengesCollection.get().await()
+        if (snapshot.isEmpty) {
+            for (challenge in defaultChallenges) {
+                challengesCollection.add(challenge).await()
+            }
+        }
     }
 
     suspend fun getAllChallenges(): List<Challenge> {
@@ -169,66 +106,277 @@ class FirestoreRepository {
         return snapshot.documents.mapNotNull { it.toObject(Challenge::class.java) }
     }
 
-    // Crear sesión de juego con modelo
-    suspend fun createGameSession(hostUserId: String, gameType: String): String {
+    // -----------------------------
+    // GAME SESSIONS
+    // -----------------------------
+    /**
+     * Busca una sesión activa para el host (hostUserId). Si existe devuelve su id,
+     * si no existe crea una nueva sesión y la devuelve.
+     *
+     * La nueva sesión, cuando se crea, incluye por defecto al host dentro del array participants.
+     */
+    suspend fun getOrCreateSessionForHost(
+        hostUserId: String,
+        hostName: String,
+        gameType: String
+    ): String {
+        // 1️⃣ Buscar si ya existe una sesión activa del host
+        val querySnapshot = sessionsCollection
+            .whereEqualTo("hostId", hostUserId)
+            .whereEqualTo("active", true)
+            .limit(1)
+            .get()
+            .await()
+
+        if (!querySnapshot.isEmpty) {
+            val existingSession = querySnapshot.documents.first()
+            val sessionId = existingSession.id
+
+            // 2️⃣ Asegurar que el host esté incluido en "participants"
+            val participants = existingSession.get("participants") as? List<Map<String, Any>> ?: emptyList()
+            val hostAlreadyIn = participants.any { it["id"] == hostUserId }
+
+            if (!hostAlreadyIn) {
+                val updated = participants + mapOf(
+                    "id" to hostUserId,
+                    "name" to hostName,
+                    "userId" to hostUserId
+                )
+                sessionsCollection.document(sessionId).update("participants", updated).await()
+            }
+
+            return sessionId
+        }
+
+        // 3️⃣ No existe: crear nueva sesión con el host incluido como participante
+        val hostParticipant = mapOf(
+            "id" to hostUserId,
+            "name" to hostName,
+            "userId" to hostUserId
+        )
+
         val session = GameSession(
-            id = "", // se asignará después
+            id = "",
             hostId = hostUserId,
             gameType = gameType,
             createdAt = System.currentTimeMillis(),
-            active = true
+            active = true,
+            participants = listOf(hostParticipant)
         )
+
         val docRef = sessionsCollection.add(session).await()
         val sessionId = docRef.id
-        // actualizar el campo id dentro del documento
+
         sessionsCollection.document(sessionId).update("id", sessionId).await()
+
         return sessionId
     }
 
-    suspend fun getGameSession(sessionId: String): GameSession? {
-        val doc = sessionsCollection.document(sessionId).get().await()
-        return if (doc.exists()) doc.toObject(GameSession::class.java) else null
+
+    /**
+     * Añade un participante a la sesión, evitando duplicados.
+     * Operación segura con transaction.
+     */
+    suspend fun addParticipantToSession(sessionId: String, player: Player) {
+        val sessionRef = sessionsCollection.document(sessionId)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(sessionRef)
+            val participants = snapshot.get("participants") as? List<Map<String, Any>> ?: emptyList()
+
+            // Si ya existe (mismo id), no añadimos
+            val exists = participants.any { it["id"] == player.id }
+            if (!exists) {
+                val updated = participants + mapOf(
+                    "id" to player.id,
+                    "name" to player.name,
+                    "userId" to player.userId
+                )
+                transaction.update(sessionRef, "participants", updated)
+            }
+        }.await()
     }
 
-    suspend fun addParticipantToSession(sessionId: String, participant: Player) {
-        sessionsCollection
-            .document(sessionId)
-            .collection("participants")
-            .add(participant)
-            .await()
+    /**
+     * Elimina participante por id (transaction).
+     */
+    suspend fun removeParticipantFromSession(sessionId: String, player: Player) {
+        val sessionRef = sessionsCollection.document(sessionId)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(sessionRef)
+            val participants = snapshot.get("participants") as? List<Map<String, Any>> ?: emptyList()
+            val updated = participants.filterNot { it["id"] == player.id }
+            transaction.update(sessionRef, "participants", updated)
+        }.await()
     }
 
+    /**
+     * Lee el array participants del documento de sesión y lo transforma a List<Player>.
+     */
     suspend fun getParticipants(sessionId: String): List<Player> {
-        val snap = sessionsCollection
-            .document(sessionId)
-            .collection("participants")
-            .get().await()
-        return snap.documents.mapNotNull { it.toObject(Player::class.java) }
+        val doc = sessionsCollection.document(sessionId).get().await()
+        if (!doc.exists()) return emptyList()
+        val participants = doc.get("participants") as? List<Map<String, Any>> ?: emptyList()
+        return participants.map {
+            Player(
+                id = it["id"] as? String ?: "",
+                name = it["name"] as? String ?: "",
+                userId = it["userId"] as? String ?: ""
+            )
+        }
     }
-
-    suspend fun deleteParticipant(sessionId: String, participantId: String) {
-        sessionsCollection
-            .document(sessionId)
-            .collection("participants")
-            .document(participantId)
-            .delete().await()
-    }
-
+    // -----------------------------
+    // TURNS (Me gusta / No me gusta)
+    // -----------------------------
     suspend fun addTurn(sessionId: String, turn: Turn) {
-        sessionsCollection
+        val turnsRef = db.collection("game_sessions")
             .document(sessionId)
             .collection("turns")
-            .add(turn)
-            .await()
+
+        // 🔹 Datos base (siempre necesarios)
+        val turnData = mutableMapOf<String, Any>(
+            "participantId" to turn.participantId,
+            "challengeId" to turn.challengeId,
+            "timestamp" to turn.timestamp
+        )
+
+        // 🔹 Solo incluir 'liked' si no es null
+        turn.liked?.let { turnData["liked"] = it }
+
+        // 🔹 Guardar el turno (no crea ninguna colección vacía)
+        turnsRef.add(turnData).await()
+
+        // 🔹 Solo actualizar estadísticas si hay un valor para 'liked'
+        if (turn.liked != null) {
+            incrementChallengeStats(turn.challengeId, turn.liked)
+        }
     }
+
 
     suspend fun getTurns(sessionId: String): List<Turn> {
-        val snap = sessionsCollection
+        val snapshot = sessionsCollection
             .document(sessionId)
             .collection("turns")
-            .get().await()
-        return snap.documents.mapNotNull { it.toObject(Turn::class.java) }
+            .get()
+            .await()
+        return snapshot.documents.mapNotNull { it.toObject(Turn::class.java) }
     }
 
+    // -----------------------------
+    // ESTADÍSTICAS DE RETOS
+    // -----------------------------
+    private suspend fun incrementChallengeStats(challengeId: String, liked: Boolean?) {
+        val statsRef = db.collection("challenge_stats").document(challengeId)
+        val incrementField = when (liked) {
+            true -> mapOf("likes" to FieldValue.increment(1))
+            false -> mapOf("dislikes" to FieldValue.increment(1))
+            else -> mapOf("calificaciones" to FieldValue.increment(1))
+        }
+        statsRef.set(incrementField, SetOptions.merge()).await()
+    }
 
+    // --- EVENTOS ---
+
+    // Crear evento
+    suspend fun createEvent(event: Event): String? {
+        return try {
+            val docRef = eventsCollection.document()
+            val eventToSave = event.copy(id = docRef.id)
+            docRef.set(eventToSave).await()
+            docRef.id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    // Obtener eventos del usuario (creados o invitados)
+    suspend fun getEventsForUser(userId: String): List<Event> {
+        val results = mutableListOf<Event>()
+        try {
+            val ownerQuery = eventsCollection.whereEqualTo("ownerId", userId).get().await()
+            results.addAll(ownerQuery.toObjects(Event::class.java))
+
+            val invitedQuery = eventsCollection.get().await()
+            invitedQuery.documents.forEach { doc ->
+                val event = doc.toObject(Event::class.java)?.copy(id = doc.id)
+                if (event != null && event.invitedUsers.any { it.userId == userId }) {
+                    if (!results.any { it.id == event.id }) results.add(event)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return results
+    }
+
+    // Actualizar estado de invitación
+    suspend fun updateInvitationStatus(eventId: String, userId: String, newStatus: String): Boolean {
+        return try {
+            val docRef = eventsCollection.document(eventId)
+            val snapshot = docRef.get().await()
+            val event = snapshot.toObject(Event::class.java) ?: return false
+
+            val updatedInvited = event.invitedUsers.map {
+                if (it.userId == userId) it.copy(status = newStatus) else it
+            }
+
+            docRef.update("invitedUsers", updatedInvited).await()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    // Obtener todos los usuarios (para invitar)
+    suspend fun getAllUsers(): List<Map<String, String>> {
+        val snapshot = db.collection("users").get().await()
+        return snapshot.documents.mapNotNull {
+            val id = it.id
+            val name = it.getString("name") ?: return@mapNotNull null
+            mapOf("id" to id, "name" to name)
+        }
+    }
+
+    // Invitar jugadores
+    suspend fun invitePlayersToEvent(eventId: String, invitedIds: List<String>, users: List<Map<String, String>>) {
+        try {
+            val docRef = eventsCollection.document(eventId)
+            val snapshot = docRef.get().await()
+            val event = snapshot.toObject(Event::class.java) ?: return
+            val existingInvited = event.invitedUsers.toMutableList()
+
+            invitedIds.forEach { id ->
+                val user = users.find { it["id"] == id }
+                if (user != null && existingInvited.none { it.userId == id }) {
+                    existingInvited.add(InvitedUser(id, user["name"] ?: "", "pending"))
+                }
+            }
+
+            docRef.update("invitedUsers", existingInvited).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // Obtener evento por ID
+    suspend fun getEventById(eventId: String): Event? {
+        return try {
+            val doc = eventsCollection.document(eventId).get().await()
+            doc.toObject(Event::class.java)?.copy(id = doc.id)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    // Eliminar evento
+    suspend fun deleteEvent(event: Event) {
+        try {
+            eventsCollection.document(event.id).delete().await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }
+

@@ -1,6 +1,5 @@
 package com.example.forgetshyness
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,42 +9,50 @@ import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.Player
 import com.example.forgetshyness.data.Turn
 import com.example.forgetshyness.games.TruthOrDareScreen
+import com.example.forgetshyness.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.example.forgetshyness.utils.Constants
 
 class TruthOrDareActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
         val sessionId = intent.getStringExtra(Constants.KEY_SESSION_ID) ?: ""
+        val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
+
         if (userId.isBlank() || sessionId.isBlank()) {
             finish()
             return
         }
 
         setContent {
-            var participantsList by remember { mutableStateOf<List<Player>>(emptyList()) }
-            var challengesAll by remember { mutableStateOf<List<Challenge>>(emptyList()) }
             val repo = remember { FirestoreRepository() }
+            var participants by remember { mutableStateOf<List<Player>>(emptyList()) }
+            var challenges by remember { mutableStateOf<List<Challenge>>(emptyList()) }
 
             LaunchedEffect(sessionId) {
-                val participants = repo.getParticipants(sessionId)
-                val challenges = repo.getAllChallenges()
-                participantsList = participants
-                challengesAll = challenges
+                val list = repo.getParticipants(sessionId).toMutableList()
+
+                // ✅ Aseguramos que el host esté presente
+                val hostAlreadyIncluded = list.any { it.userId == userId }
+                if (!hostAlreadyIncluded) {
+                    list.add(0, Player(id = userId, name = userName, userId = userId))
+                }
+
+                participants = list
+                challenges = repo.getAllChallenges()
             }
 
-            val participantNames = participantsList.map { it.name }
+            val participantNames = participants.map { it.name }
 
             TruthOrDareScreen(
                 sessionId = sessionId,
                 participants = participantNames,
-                allChallenges = challengesAll,
+                allChallenges = challenges,
                 onFinishTurn = { challenge, idx ->
-                    if (idx in participantsList.indices) {
-                        val participant = participantsList[idx]
+                    if (idx in participants.indices) {
+                        val participant = participants[idx]
                         CoroutineScope(Dispatchers.IO).launch {
                             repo.addTurn(
                                 sessionId,
@@ -59,10 +66,11 @@ class TruthOrDareActivity : ComponentActivity() {
                         }
                     }
                 },
-                onBackClick = {
-                    finish()
-                }
+                onBackClick = { finish() }
             )
         }
     }
 }
+
+
+

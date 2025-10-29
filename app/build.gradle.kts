@@ -39,10 +39,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+
 }
 
 dependencies {
-
+    // --- Jetpack Compose ---
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -50,15 +52,35 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+
+
+    // Material 3 completo
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.compose.material3:material3-window-size-class:1.3.0")
+
+    // Opcional: iconos extendidos
+    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+
+    // --- Firebase ---
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     implementation("com.google.firebase:firebase-analytics")
-    implementation ("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
-    implementation("androidx.navigation:navigation-compose:2.9.5")
-    implementation(libs.androidx.foundation)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.media3.common.ktx)
+
+    // --- Navegación ---
+    implementation("androidx.navigation:navigation-compose:2.8.3")
+
+    // --- Mapas y ubicación ---
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.maps.android:maps-compose:4.4.1")
+    implementation("com.google.android.libraries.places:places:3.5.0")
+
+    // --- Permisos ---
+    implementation("com.google.accompanist:accompanist-permissions:0.35.2-beta")
+    implementation(libs.androidx.compose.ui)
+
+    // --- Tests ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

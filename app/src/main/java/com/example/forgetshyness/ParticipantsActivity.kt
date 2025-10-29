@@ -7,9 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import androidx.lifecycle.lifecycleScope
-import com.example.forgetshyness.games.ParticipantsScreen
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.Player
+import com.example.forgetshyness.games.ParticipantsScreen
 import com.example.forgetshyness.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,84 +21,93 @@ class ParticipantsActivity : ComponentActivity() {
 
         val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
         val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
-        Log.d("ParticipantsActivity", "onCreate: userName=$userName, userId=$userId")
+        val incomingSessionId = intent.getStringExtra(Constants.KEY_SESSION_ID)
+
+        Log.d("ParticipantsActivity", "onCreate: userName=$userName, userId=$userId, incomingSession=$incomingSessionId")
 
         setContent {
-            var players by remember { mutableStateOf<List<Player>>(emptyList()) }
             val repo = remember { FirestoreRepository() }
+            var players by remember { mutableStateOf<List<Player>>(emptyList()) }
+            var sessionId by remember { mutableStateOf<String?>(incomingSessionId) }
+            var isLoading by remember { mutableStateOf(true) }
 
+            // 🔹 Cargar o crear sesión
             LaunchedEffect(Unit) {
-                if (userId.isBlank()) {
-                    Log.e("ParticipantsActivity", "userId está en blanco, no buscar jugadores")
-                } else {
-                    try {
-                        val loaded = repo.getPlayersByUser(userId)
-                        players = loaded
-                    } catch (e: Exception) {
-                        Log.e("ParticipantsActivity", "Error cargando jugadores", e)
-                    }
+                try {
+                    val sid = sessionId ?: repo.getOrCreateSessionForHost(
+                        hostUserId = userId,
+                        hostName = userName,
+                        gameType = Constants.DEFAULT_GAME_TYPE
+                    ).also { sessionId = it }
+
+                    // 🔹 Cargar los participantes actuales
+                    players = repo.getParticipants(sid)
+                } catch (e: Exception) {
+                    Log.e("ParticipantsActivity", "Error cargando sesión: ${e.message}", e)
+                } finally {
+                    isLoading = false
                 }
             }
 
-            ParticipantsScreen(
-                userName = userName,
-                userId = userId,
-                existingPlayers = players,
-                onAdd = { name ->
-                    Log.d("ParticipantsActivity", "onAdd called with name = $name")
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        try {
-                            val newId = repo.addPlayer(Player(name = name, userId = userId))
-                            Log.d("ParticipantsActivity", "addPlayer returned id = $newId")
-                            val updated = repo.getPlayersByUser(userId)
-                            withContext(Dispatchers.Main) {
-                                players = updated
-                            }
-                        } catch (e: Exception) {
-                            Log.e("ParticipantsActivity", "Error al agregar jugador", e)
-                        }
-                    }
-                },
-                onDelete = { pid ->
-                    Log.d("ParticipantsActivity", "onDelete called pid = $pid")
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        try {
-                            repo.deletePlayer(pid)
-                            val updated = repo.getPlayersByUser(userId)
-                            withContext(Dispatchers.Main) {
-                                players = updated
-                            }
-                        } catch (e: Exception) {
-                            Log.e("ParticipantsActivity", "Error eliminando jugador", e)
-                        }
-                    }
-                },
-                onSave = {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        try {
-                            val sessionId = repo.createGameSession(
-                                hostUserId = userId,
-                                gameType = Constants.DEFAULT_GAME_TYPE
-                            )
-                            repo.addParticipantToSession(sessionId, Player(name = userName, userId = userId))
-                            players.forEach { p -> repo.addParticipantToSession(sessionId, p) }
+            // 🔹 Filtramos al host para que no se muestre visualmente
+            val visiblePlayers = players.filter { it.userId != userId && it.id != userId }
 
-                            withContext(Dispatchers.Main) {
-                                val intent = Intent(this@ParticipantsActivity, GamesMenuActivity::class.java).apply {
-                                    putExtra(Constants.KEY_USER_NAME, userName)
-                                    putExtra(Constants.KEY_USER_ID, userId)
-                                    putExtra(Constants.KEY_SESSION_ID, sessionId)
-                                }
-                                startActivity(intent)
-                                finish()
+            if (!isLoading) {
+                ParticipantsScreen(
+                    userName = userName,
+                    userId = userId,
+                    existingPlayers = visiblePlayers,
+                    onAdd = { name ->
+                        if (sessionId.isNullOrBlank()) return@ParticipantsScreen
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            try {
+                                val newPlayer = Player(
+                                    id = name.lowercase() + "_" + System.currentTimeMillis(),
+                                    name = name,
+                                    userId = "guest_${System.currentTimeMillis()}" // evitar duplicar host
+                                )
+                                repo.addParticipantToSession(sessionId!!, newPlayer)
+                                val updated = repo.getParticipants(sessionId!!)
+                                withContext(Dispatchers.Main) { players = updated }
+                            } catch (e: Exception) {
+                                Log.e("ParticipantsActivity", "Error al agregar participante: ${e.message}", e)
                             }
-                        } catch (e: Exception) {
-                            Log.e("ParticipantsActivity", "Error creando sesión", e)
                         }
-                    }
-                },
-                onBackClick = { finish() }
-            )
+                    },
+                    onDelete = { pid ->
+                        if (sessionId.isNullOrBlank()) return@ParticipantsScreen
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            try {
+                                val player = players.find { it.id == pid }
+                                if (player != null && player.userId != userId) {
+                                    repo.removeParticipantFromSession(sessionId!!, player)
+                                    val updated = repo.getParticipants(sessionId!!)
+                                    withContext(Dispatchers.Main) { players = updated }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("ParticipantsActivity", "Error al eliminar participante: ${e.message}", e)
+                            }
+                        }
+                    },
+                    onSave = {
+                        if (sessionId.isNullOrBlank()) return@ParticipantsScreen
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            val intent = Intent(this@ParticipantsActivity, GamesMenuActivity::class.java).apply {
+                                putExtra(Constants.KEY_USER_NAME, userName)
+                                putExtra(Constants.KEY_USER_ID, userId)
+                                putExtra(Constants.KEY_SESSION_ID, sessionId)
+                            }
+                            startActivity(intent)
+                            finish()
+                        }
+                    },
+                    onBackClick = { finish() }
+                )
+            }
         }
     }
 }
+
+
+
+

@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
-import androidx.media3.common.util.Log
 import com.example.forgetshyness.data.Challenge
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.Player
@@ -20,6 +19,7 @@ class RuletaActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
         val sessionId = intent.getStringExtra(Constants.KEY_SESSION_ID) ?: ""
+        val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
 
         if (userId.isBlank() || sessionId.isBlank()) {
             finish()
@@ -31,9 +31,16 @@ class RuletaActivity : ComponentActivity() {
             var participants by remember { mutableStateOf<List<Player>>(emptyList()) }
             var challenges by remember { mutableStateOf<List<Challenge>>(emptyList()) }
 
-            // Cargar participantes y retos desde Firestore
             LaunchedEffect(sessionId) {
-                participants = repo.getParticipants(sessionId)
+                val list = repo.getParticipants(sessionId).toMutableList()
+
+                // ✅ Aseguramos que el host esté presente
+                val hostAlreadyIncluded = list.any { it.userId == userId }
+                if (!hostAlreadyIncluded) {
+                    list.add(0, Player(id = userId, name = userName, userId = userId))
+                }
+
+                participants = list
                 challenges = repo.getAllChallenges()
             }
 
@@ -43,7 +50,6 @@ class RuletaActivity : ComponentActivity() {
                     participants = participants,
                     challenges = challenges,
                     onSaveTurn = { challenge, participant, liked ->
-                        /* Log.d("RuletaActivity", "Guardando turno: ${participant.name} → ${challenge.text} | liked: $liked") */
                         CoroutineScope(Dispatchers.IO).launch {
                             repo.addTurn(
                                 sessionId,
@@ -62,6 +68,10 @@ class RuletaActivity : ComponentActivity() {
         }
     }
 }
+
+
+
+
 
 
 
