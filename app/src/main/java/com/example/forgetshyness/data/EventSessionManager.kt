@@ -1,5 +1,6 @@
 package com.example.forgetshyness.data
 
+import androidx.compose.runtime.mutableStateListOf
 import java.util.Date
 
 object EventSessionManager {
@@ -10,8 +11,9 @@ object EventSessionManager {
     var latitude: Double? = null
     var longitude: Double? = null
     var shoppingList: String = ""
-    var invitedUsers: MutableList<String> = mutableListOf()
-    var invitedUserNames = mutableListOf<String>() // nombres de usuarios
+    // ✅ Listas reactivas para invitados
+    var invitedUsers = mutableStateListOf<String>()
+    var invitedUserNames = mutableStateListOf<String>()
     var currentUserId: String? = null
 
     fun clear() {

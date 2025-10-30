@@ -77,8 +77,12 @@ fun CreateEventScreen(
             EventSessionManager.eventDate = ev.date
             EventSessionManager.eventLocation = ev.location.address
             EventSessionManager.shoppingList = ev.shoppingList.joinToString(", ")
-            EventSessionManager.invitedUsers = ev.invitedUsers.map { it.userId }.toMutableList()
-            EventSessionManager.invitedUserNames = ev.invitedUsers.map { it.name }.toMutableList()
+
+            EventSessionManager.invitedUsers.addAll(ev.invitedUsers.map { it.userId })
+
+
+            EventSessionManager.invitedUserNames.addAll(ev.invitedUsers.map { it.name })
+
         }
     }
 
@@ -272,15 +276,31 @@ fun CreateEventScreen(
                     ) { Text("+ Agregar jugadores", color = Color.Black) }
 
                     // Mostrar los jugadores invitados (si existen)
-                    if (EventSessionManager.invitedUserNames.isNotEmpty()) {
+                    if (EventSessionManager.invitedUsers.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Jugadores invitados:", color = Color.DarkGray, fontSize = 16.sp)
-                        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
-                            EventSessionManager.invitedUserNames.forEach { nm ->
-                                Text(text = nm, color = Color.DarkGray, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp, top = 4.dp))
+                        Text(
+                            text = "Jugadores invitados:",
+                            color = Color.DarkGray,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            EventSessionManager.invitedUserNames.forEach { userName ->
+                                Text(
+                                    text = userName,
+                                    color = Color.DarkGray,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
                             }
                         }
                     }
+
 
                     // Lista de compras
                     Text("Lista de compras", fontWeight = FontWeight.SemiBold)
