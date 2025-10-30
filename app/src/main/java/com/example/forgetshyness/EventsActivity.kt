@@ -37,10 +37,10 @@ class EventsActivity : ComponentActivity() {
                     },
                     onEventClick = {
                         selectedEvent = it
-                        EventSessionManager.clear() // Limpia por si había algo de una creación anterior
+                        EventSessionManager.clear()
                         currentScreen = "detail"
                     },
-                    onBackClick = { onBackPressedDispatcher.onBackPressed() } // <- CORREGIDO
+                    onBackClick = { onBackPressedDispatcher.onBackPressed() }
                 )
 
                 "create" -> CreateEventScreen(
@@ -50,19 +50,19 @@ class EventsActivity : ComponentActivity() {
                     eventToEdit = selectedEvent,
                     selectedLocation = selectedLocation,
                     onLocationConsumed = { selectedLocation = null },
-                    onEventCreated = { // Limpiar estado después de crear/editar
+                    onEventCreated = {
                         selectedEvent = null
                         EventSessionManager.clear()
                         currentScreen = "list"
                     },
-                    onBackClick = { // Limpiar estado al volver
+                    onBackClick = {
                         selectedEvent = null
                         EventSessionManager.clear()
                         currentScreen = "list"
                     },
                     onOpenMapClick = { currentScreen = "map" },
-                    onInvitePlayersClick = { event ->
-                        selectedEvent = event
+                    // El evento que se pasa aquí es solo para mantener el estado, no debe modificar el selectedEvent principal
+                    onInvitePlayersClick = { _ ->
                         currentScreen = "invite"
                     }
                 )
@@ -78,17 +78,16 @@ class EventsActivity : ComponentActivity() {
                     }
                 )
 
-                "invite" -> selectedEvent?.let { event ->
-                    InvitePlayersScreen(
-                        eventId = event.id,
-                        userId = userId,
-                        repository = repository,
-                        onBackClick = { currentScreen = "create" },
-                        onInvitationsSent = {
-                            currentScreen = "create"
-                        }
-                    )
-                }
+                "invite" -> InvitePlayersScreen(
+                    // Pasamos el ID del evento solo si estamos editando (selectedEvent no es nulo)
+                    eventId = selectedEvent?.id ?: "",
+                    userId = userId,
+                    repository = repository,
+                    onBackClick = { currentScreen = "create" },
+                    onInvitationsSent = {
+                        currentScreen = "create"
+                    }
+                )
 
                 "detail" -> selectedEvent?.let { event ->
                     EventDetailScreen(
@@ -97,7 +96,7 @@ class EventsActivity : ComponentActivity() {
                         onBackClick = { currentScreen = "list" },
                         onEditClick = {
                             selectedEvent = it
-                            EventSessionManager.clear() // Limpia para asegurar que se carguen los datos del evento a editar
+                            EventSessionManager.clear()
                             currentScreen = "create"
                         },
                         onEventDeleted = { currentScreen = "list" },

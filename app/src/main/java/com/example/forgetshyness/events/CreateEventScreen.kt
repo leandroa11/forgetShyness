@@ -59,7 +59,6 @@ fun CreateEventScreen(
     val formattedDate by remember(eventDate) { derivedStateOf { dateFormat.format(eventDate) } }
     val calendar = remember(eventDate) { Calendar.getInstance().apply { time = eventDate } }
 
-    // Se ejecuta solo cuando el ID del evento cambia, no en cada recomposición.
     LaunchedEffect(eventToEdit?.id) {
         eventToEdit?.let { ev ->
             eventName = ev.name
@@ -74,7 +73,6 @@ fun CreateEventScreen(
             EventSessionManager.eventLocation = ev.location.address
             EventSessionManager.shoppingList = shoppingList
 
-            // Limpiamos la lista de invitados antes de añadir los nuevos para evitar duplicados
             EventSessionManager.invitedUsers.clear()
             EventSessionManager.invitedUserNames.clear()
             EventSessionManager.invitedUsers.addAll(ev.invitedUsers.map { it.userId })
@@ -175,25 +173,15 @@ fun CreateEventScreen(
             FormSection(label = stringResource(R.string.event_guests_label)) {
                 Button(
                     onClick = {
-                        val currentEventState = Event(
-                            id = eventToEdit?.id ?: "",
-                            ownerId = userId,
-                            ownerName = userName,
-                            name = eventName,
-                            description = eventDescription,
-                            date = eventDate,
-                            location = EventLocation(
-                                latitude = EventSessionManager.latitude ?: eventToEdit?.location?.latitude ?: 0.0,
-                                longitude = EventSessionManager.longitude ?: eventToEdit?.location?.longitude ?: 0.0,
-                                address = eventLocation
-                            ),
-                            shoppingList = shoppingList.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                            invitedUsers = EventSessionManager.invitedUsers.mapIndexed { index, uId ->
-                                val name = EventSessionManager.invitedUserNames.getOrNull(index) ?: ""
-                                com.example.forgetshyness.data.InvitedUser(userId = uId, name = name)
-                            }
-                        )
-                        onInvitePlayersClick(currentEventState)
+                        // --- SOLUCIÓN: Guardar estado actual en la sesión antes de navegar ---
+                        EventSessionManager.eventName = eventName
+                        EventSessionManager.eventDescription = eventDescription
+                        EventSessionManager.eventDate = eventDate
+                        EventSessionManager.eventLocation = eventLocation
+                        EventSessionManager.shoppingList = shoppingList
+
+                        // Pasamos un evento temporal, su contenido no es crítico para la navegación
+                        onInvitePlayersClick(Event(id = eventToEdit?.id ?: ""))
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C)),
                     modifier = Modifier.fillMaxWidth()
@@ -202,7 +190,8 @@ fun CreateEventScreen(
                 if (EventSessionManager.invitedUserNames.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(stringResource(R.string.event_invited_players_header), color = Color.White, fontWeight = FontWeight.SemiBold)
-                    EventSessionManager.invitedUserNames.forEach {
+                    // Usamos un Set para evitar visualmente los duplicados mientras el estado se estabiliza
+                    EventSessionManager.invitedUserNames.toSet().forEach {
                         Text("• $it", color = Color.White.copy(alpha = 0.8f), modifier = Modifier.padding(start = 8.dp))
                     }
                 }
