@@ -75,6 +75,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.maps.android:maps-compose:4.4.1")
     implementation("com.google.android.libraries.places:places:3.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 
     // --- Permisos ---
     implementation("com.google.accompanist:accompanist-permissions:0.35.2-beta")

@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.forgetshyness.data.EventSessionManager
 import com.example.forgetshyness.data.FirestoreRepository
 import kotlinx.coroutines.launch
 
@@ -22,19 +23,26 @@ import kotlinx.coroutines.launch
 @Composable
 fun InvitePlayersScreen(
     eventId: String,
+    userId: String,
     repository: FirestoreRepository,
     onBackClick: () -> Unit,
     onInvitationsSent: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var allUsers by remember { mutableStateOf<List<Map<String, String>>>(emptyList()) }
-    val selectedUsers = remember { mutableStateListOf<String>() }
+
+// 🟡 Cargamos los invitados actuales guardados en sesión (para que se recuerden)
+    var selectedUsers by remember { mutableStateOf(EventSessionManager.invitedUsers.toList()) }
+
     var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        allUsers = repository.getAllUsers()
+        // 🔹 Obtenemos todos los usuarios, pero filtramos al usuario actual (el organizador)
+        val users = repository.getAllUsers()
+        allUsers = users.filter { it["id"] != EventSessionManager.currentUserId } // ⚠️ Debes asegurar que guardas currentUserId al iniciar sesión
         loading = false
     }
+
 
     Scaffold(
         topBar = {
@@ -85,8 +93,11 @@ fun InvitePlayersScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        if (isSelected) selectedUsers.remove(userId)
-                                        else selectedUsers.add(userId)
+                                        selectedUsers = if (isSelected) {
+                                            selectedUsers - userId
+                                        } else {
+                                            selectedUsers + userId
+                                        }
                                     }
                                     .padding(16.dp),
                                 verticalAlignment = Alignment.CenterVertically
@@ -94,8 +105,11 @@ fun InvitePlayersScreen(
                                 Checkbox(
                                     checked = isSelected,
                                     onCheckedChange = {
-                                        if (isSelected) selectedUsers.remove(userId)
-                                        else selectedUsers.add(userId)
+                                        selectedUsers = if (isSelected) {
+                                            selectedUsers - userId
+                                        } else {
+                                            selectedUsers + userId
+                                        }
                                     },
                                     colors = CheckboxDefaults.colors(
                                         checkedColor = Color(0xFFFFCB3C)
@@ -114,7 +128,18 @@ fun InvitePlayersScreen(
                         onClick = {
                             scope.launch {
                                 repository.invitePlayersToEvent(eventId, selectedUsers, allUsers)
+
+                                // 🟡 Guardar IDs y nombres en el SessionManager
+                                EventSessionManager.invitedUsers.clear()
+                                EventSessionManager.invitedUsers.addAll(selectedUsers)
+
+                                EventSessionManager.invitedUserNames.clear()
+                                EventSessionManager.invitedUserNames.addAll(
+                                    allUsers.filter { it["id"] in selectedUsers }.map { it["name"].orEmpty() }
+                                )
+
                                 onInvitationsSent()
+
                             }
                         },
                         enabled = selectedUsers.isNotEmpty(),
@@ -128,6 +153,7 @@ fun InvitePlayersScreen(
                     ) {
                         Text("Enviar invitaciones (${selectedUsers.size})")
                     }
+
                 }
             }
         }

@@ -28,7 +28,7 @@ fun EventDetailScreen(
     onBackClick: () -> Unit,
     onEditClick: (Event) -> Unit,
     onEventDeleted: () -> Unit,
-    onInviteClick: () -> Unit
+    onInviteClick: (Event) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var currentEvent by remember { mutableStateOf(event) }
@@ -57,9 +57,10 @@ fun EventDetailScreen(
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
                         }
-                        IconButton(onClick = onInviteClick) {
+                        IconButton(onClick = { onInviteClick(currentEvent) }) {
                             Icon(Icons.Default.GroupAdd, contentDescription = "Invitar", tint = Color.White)
                         }
+
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

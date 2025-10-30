@@ -1,6 +1,7 @@
 package com.example.forgetshyness.events
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -152,9 +153,23 @@ fun EventListScreen(
 }
 
 @Composable
-fun EventCard(event: Event, content: @Composable () -> Unit) {
-    TODO("Not yet implemented")
+fun EventCard(event: Event, onClick: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF2CC)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .clickable { onClick() }
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(event.name, fontSize = 18.sp, color = Color.Black)
+            Text("Anfitrión: ${event.ownerName}", color = Color.DarkGray, fontSize = 14.sp)
+            Text("Ubicación: ${event.location.address}", color = Color.DarkGray, fontSize = 14.sp)
+            Text("Invitados: ${event.invitedUsers.size}", color = Color.DarkGray, fontSize = 14.sp)
+        }
+    }
 }
+
 
 @Composable
 fun InvitationCard(event: Event, userId: String, repository: FirestoreRepository, onRefresh: () -> Unit) {

@@ -5,16 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import com.example.forgetshyness.data.Event
+import com.example.forgetshyness.data.EventSessionManager
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.events.*
+import com.example.forgetshyness.utils.Constants
 
 class EventsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val repository = FirestoreRepository()
-        val userId = "12345"
-        val userName = "Valentina"
+        val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
+        val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
+
+        // 🟡 Aquí guardamos el usuario actual en memoria
+        EventSessionManager.currentUserId = userId
 
         setContent {
             var currentScreen by remember { mutableStateOf("list") }
@@ -35,30 +40,41 @@ class EventsActivity : ComponentActivity() {
 
                 "create" -> CreateEventScreen(
                     userId = userId,
+                    userName = userName,
                     repository = repository,
                     eventToEdit = selectedEvent,
-                    selectedLocation = selectedLocation,               // <- pasar aquí
+                    selectedLocation = selectedLocation,
                     onLocationConsumed = { selectedLocation = null },
                     onEventCreated = { currentScreen = "list" },
                     onBackClick = { currentScreen = "list" },
-                    onOpenMapClick = { currentScreen = "map" },
-                    onInvitePlayersClick = { currentScreen = "invite" }
+                    onOpenMapClick = { currentScreen = "map" },  // ✅ ESTA LÍNEA
+                    onInvitePlayersClick = { event ->
+                        selectedEvent = event
+                        currentScreen = "invite"
+                    }
                 )
 
                 "map" -> SelectLocationScreen(
+                    previousAddress = selectedLocation,
                     onLocationSelected = { address ->
+                        EventSessionManager.eventLocation = address
                         selectedLocation = address
                         currentScreen = "create"
                     },
-                    onBackClick = { currentScreen = "create" }
+                    onBackClick = {
+                        currentScreen = "create"
+                    }
                 )
 
                 "invite" -> selectedEvent?.let { event ->
                     InvitePlayersScreen(
                         eventId = event.id,
                         repository = repository,
-                        onBackClick = { currentScreen = "detail" },
-                        onInvitationsSent = { currentScreen = "list" }
+                        userId = userId,              // ✅ nuevo parámetro
+                        onBackClick = { currentScreen = "create" }, // ✅ regresar a crear
+                        onInvitationsSent = {
+                            currentScreen = "create" // ✅ regresar al formulario
+                        }
                     )
                 }
 
@@ -72,12 +88,15 @@ class EventsActivity : ComponentActivity() {
                             currentScreen = "create"
                         },
                         onEventDeleted = { currentScreen = "list" },
-                        onInviteClick = {
-                            selectedEvent = event
+                        onInviteClick = { eventToInvite ->
+                            selectedEvent = eventToInvite   // ✅ esta es la variable remember de arriba
                             currentScreen = "invite"
                         }
+
+
                     )
                 }
+
             }
         }
     }

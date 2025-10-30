@@ -378,5 +378,15 @@ class FirestoreRepository {
             e.printStackTrace()
         }
     }
+
+    // Actualizar evento
+    suspend fun updateEvent(event: Event) {
+        try {
+            eventsCollection.document(event.id).set(event).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 }
 
