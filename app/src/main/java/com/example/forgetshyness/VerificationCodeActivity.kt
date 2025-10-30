@@ -180,6 +180,7 @@ fun VerificationScreen(
                                         Toast.makeText(context, context.getString(R.string.verification_success), Toast.LENGTH_SHORT).show()
                                         val intent = Intent(context, WelcomeActivity::class.java).apply {
                                             putExtra("USER_NAME", userName)
+                                            putExtra("USER_ID", userId)
                                         }
                                         context.startActivity(intent)
                                         activity.finishAffinity() // Cierra esta y las actividades anteriores
