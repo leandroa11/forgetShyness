@@ -31,18 +31,18 @@ fun InvitePlayersScreen(
     val scope = rememberCoroutineScope()
     var allUsers by remember { mutableStateOf<List<Map<String, String>>>(emptyList()) }
 
-// 🟡 Cargamos los invitados actuales guardados en sesión (para que se recuerden)
-    var selectedUsers by remember { mutableStateOf(EventSessionManager.invitedUsers.toList()) }
+    // usar mutableStateListOf para que las marcas funcionen y persistan
+    val selectedUsers = remember { mutableStateListOf<String>().apply { addAll(EventSessionManager.invitedUsers) } }
 
     var loading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        // 🔹 Obtenemos todos los usuarios, pero filtramos al usuario actual (el organizador)
         val users = repository.getAllUsers()
-        allUsers = users.filter { it["id"] != EventSessionManager.currentUserId } // ⚠️ Debes asegurar que guardas currentUserId al iniciar sesión
+        // filtramos al usuario organizador (si está definido)
+        val filtered = users.filter { it["id"] != EventSessionManager.currentUserId }
+        allUsers = filtered
         loading = false
     }
-
 
     Scaffold(
         topBar = {
@@ -53,27 +53,18 @@ fun InvitePlayersScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFC44545)
-                )
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFFC44545))
             )
         }
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color(0xFF8B0000), Color(0xFFF5B642))
-                    )
-                )
+                .background(Brush.verticalGradient(listOf(Color(0xFF8B0000), Color(0xFFF5B642))))
                 .padding(padding)
         ) {
             if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
-                )
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color.White)
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -85,19 +76,15 @@ fun InvitePlayersScreen(
 
                     LazyColumn(modifier = Modifier.weight(1f)) {
                         items(allUsers) { user ->
-                            val userId = user["id"]!!
-                            val userName = user["name"]!!
-                            val isSelected = userId in selectedUsers
+                            val uId = user["id"]!!
+                            val uName = user["name"]!!
+                            val isSelected = uId in selectedUsers
 
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        selectedUsers = if (isSelected) {
-                                            selectedUsers - userId
-                                        } else {
-                                            selectedUsers + userId
-                                        }
+                                        if (isSelected) selectedUsers.remove(uId) else selectedUsers.add(uId)
                                     }
                                     .padding(16.dp),
                                 verticalAlignment = Alignment.CenterVertically
@@ -105,21 +92,11 @@ fun InvitePlayersScreen(
                                 Checkbox(
                                     checked = isSelected,
                                     onCheckedChange = {
-                                        selectedUsers = if (isSelected) {
-                                            selectedUsers - userId
-                                        } else {
-                                            selectedUsers + userId
-                                        }
+                                        if (isSelected) selectedUsers.remove(uId) else selectedUsers.add(uId)
                                     },
-                                    colors = CheckboxDefaults.colors(
-                                        checkedColor = Color(0xFFFFCB3C)
-                                    )
+                                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFFFFCB3C))
                                 )
-                                Text(
-                                    text = userName,
-                                    fontSize = 16.sp,
-                                    color = Color.White
-                                )
+                                Text(text = uName, fontSize = 16.sp, color = Color.White, modifier = Modifier.padding(start = 8.dp))
                             }
                         }
                     }
@@ -127,35 +104,42 @@ fun InvitePlayersScreen(
                     Button(
                         onClick = {
                             scope.launch {
-                                repository.invitePlayersToEvent(eventId, selectedUsers, allUsers)
+                                // Si eventId está vacío, no intentamos escribir en Firestore todavía:
+                                if (eventId.isBlank()) {
+                                    // Solo actualizamos el SessionManager (se guardará cuando se guarde el evento)
+                                    EventSessionManager.invitedUsers.clear()
+                                    EventSessionManager.invitedUsers.addAll(selectedUsers)
 
-                                // 🟡 Guardar IDs y nombres en el SessionManager
-                                EventSessionManager.invitedUsers.clear()
-                                EventSessionManager.invitedUsers.addAll(selectedUsers)
-
-                                EventSessionManager.invitedUserNames.clear()
-                                EventSessionManager.invitedUserNames.addAll(
-                                    allUsers.filter { it["id"] in selectedUsers }.map { it["name"].orEmpty() }
-                                )
+                                    EventSessionManager.invitedUserNames.clear()
+                                    EventSessionManager.invitedUserNames.addAll(
+                                        allUsers.filter { it["id"] in selectedUsers }.map { it["name"].orEmpty() }
+                                    )
+                                } else {
+                                    // Evento ya existe en Firestore -> persistimos invitaciones ahí
+                                    repository.invitePlayersToEvent(eventId, selectedUsers, allUsers)
+                                    // también sincronizamos SessionManager para reflejar UI al volver
+                                    EventSessionManager.invitedUsers.clear()
+                                    EventSessionManager.invitedUsers.addAll(selectedUsers)
+                                    EventSessionManager.invitedUserNames.clear()
+                                    EventSessionManager.invitedUserNames.addAll(
+                                        allUsers.filter { it["id"] in selectedUsers }.map { it["name"].orEmpty() }
+                                    )
+                                }
 
                                 onInvitationsSent()
-
                             }
                         },
                         enabled = selectedUsers.isNotEmpty(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFFCB3C),
-                            contentColor = Color.Black
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C), contentColor = Color.Black)
                     ) {
                         Text("Enviar invitaciones (${selectedUsers.size})")
                     }
-
                 }
             }
         }
     }
 }
+

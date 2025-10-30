@@ -38,69 +38,65 @@ fun CreateEventScreen(
     userName: String,
     repository: FirestoreRepository,
     eventToEdit: Event? = null,
-    selectedLocation: String? = null,           // <- nuevo parámetro
+    selectedLocation: String? = null,           // <- viene desde EventsActivity
     onLocationConsumed: (() -> Unit)? = null,
     onEventCreated: () -> Unit,
     onBackClick: () -> Unit,
     onOpenMapClick: () -> Unit,
-    onInvitePlayersClick: (Event) -> Unit // 👈 este
-)
- {
+    onInvitePlayersClick: (Event) -> Unit
+) {
     val scope = rememberCoroutineScope()
-    val ctx: Context = LocalContext.current // <-- obtiene context aquí (dentro composable)
+    val ctx: Context = LocalContext.current
 
-    // colores / gradiente
-    val gradient = Brush.verticalGradient(
-        listOf(Color(0xFF8B0A1A), Color(0xFFD94F4F))
-    )
+    val gradient = Brush.verticalGradient(listOf(Color(0xFF8B0A1A), Color(0xFFD94F4F)))
 
-    // estados del formulario
+    // inicializamos desde EventSessionManager para persistencia entre pantallas
     var eventName by remember { mutableStateOf(EventSessionManager.eventName) }
     var eventDate by remember { mutableStateOf(EventSessionManager.eventDate ?: Date()) }
     var eventLocation by remember { mutableStateOf(EventSessionManager.eventLocation) }
     var eventDescription by remember { mutableStateOf(EventSessionManager.eventDescription) }
-    var selectedLat by remember { mutableStateOf<Double?>(null) }
-    var selectedLng by remember { mutableStateOf<Double?>(null) }
     var shoppingList by remember { mutableStateOf(EventSessionManager.shoppingList) }
     var isSaving by remember { mutableStateOf(false) }
 
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
-    val formattedDate by remember(eventDate) {
-        derivedStateOf { dateFormat.format(eventDate) }
+    val formattedDate by remember(eventDate) { derivedStateOf { dateFormat.format(eventDate) } }
+
+    val calendar = remember(eventDate) { Calendar.getInstance().apply { time = eventDate } }
+
+    // si abrimos la pantalla para editar, prellenamos y sincronizamos con SessionManager
+    LaunchedEffect(eventToEdit) {
+        eventToEdit?.let { ev ->
+            eventName = ev.name
+            eventDescription = ev.description
+            eventDate = ev.date ?: Date()
+            eventLocation = ev.location.address
+            shoppingList = ev.shoppingList.joinToString(", ")
+
+            EventSessionManager.eventName = ev.name
+            EventSessionManager.eventDescription = ev.description
+            EventSessionManager.eventDate = ev.date
+            EventSessionManager.eventLocation = ev.location.address
+            EventSessionManager.shoppingList = ev.shoppingList.joinToString(", ")
+            EventSessionManager.invitedUsers = ev.invitedUsers.map { it.userId }.toMutableList()
+            EventSessionManager.invitedUserNames = ev.invitedUsers.map { it.name }.toMutableList()
+        }
     }
 
-
-    val calendar = remember(eventDate) {
-        Calendar.getInstance().apply { time = eventDate }
+    // Cuando llega una ubicación nueva desde SelectLocationScreen actualizamos local y SessionManager
+    LaunchedEffect(selectedLocation) {
+        selectedLocation?.let {
+            eventLocation = it
+            EventSessionManager.eventLocation = it
+            onLocationConsumed?.invoke()
+        }
     }
 
-     LaunchedEffect(eventToEdit) {
-         eventToEdit?.let { ev ->
-             eventName = ev.name
-             eventDescription = ev.description
-             eventDate = ev.date ?: Date()
-             eventLocation = ev.location.address
-             shoppingList = ev.shoppingList.joinToString(", ")
+    // Mantener SessionManager actualizado si cambian valores locales
+    LaunchedEffect(eventName) { EventSessionManager.eventName = eventName }
+    LaunchedEffect(eventDescription) { EventSessionManager.eventDescription = eventDescription }
+    LaunchedEffect(shoppingList) { EventSessionManager.shoppingList = shoppingList }
+    LaunchedEffect(eventDate) { EventSessionManager.eventDate = eventDate } // garantiza persistencia al navegar
 
-             EventSessionManager.eventName = ev.name
-             EventSessionManager.eventDescription = ev.description
-             EventSessionManager.eventDate = ev.date
-             EventSessionManager.eventLocation = ev.location.address
-             EventSessionManager.shoppingList = ev.shoppingList.joinToString(", ")
-             EventSessionManager.invitedUsers = ev.invitedUsers.map { it.userId }.toMutableList()
-             EventSessionManager.invitedUserNames = ev.invitedUsers.map { it.name }.toMutableList()
-         }
-     }
-
-
-     // <-- aquí: sincronizamos el valor que viene desde EventsActivity
-     LaunchedEffect(selectedLocation) {
-         selectedLocation?.let {
-             eventLocation = it
-             // Si quieres "consumir" la ubicación y dejar limpia la variable en EventsActivity:
-             onLocationConsumed?.invoke()
-         }
-     }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -124,22 +120,38 @@ fun CreateEventScreen(
                             scope.launch {
                                 isSaving = true
                                 val ev = Event(
-                                    id = eventToEdit?.id ?: "",
+                                    id = eventToEdit?.id ?: "", // si existe, mantenemos id
                                     ownerId = userId,
-                                    ownerName = eventToEdit?.ownerName ?: "Organizador",
+                                    ownerName = userName,
                                     name = eventName.trim(),
-                                    description = eventToEdit?.description ?: "",
+                                    description = eventDescription,
                                     date = eventDate,
                                     location = EventLocation(address = eventLocation),
-                                    shoppingList = shoppingList.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                                    shoppingList = shoppingList.split(",").map { it.trim() }.filter { it.isNotEmpty() },
+                                    invitedUsers = EventSessionManager.invitedUsers.mapIndexed { index, uId ->
+                                        val name = EventSessionManager.invitedUserNames.getOrNull(index) ?: ""
+                                        com.example.forgetshyness.data.InvitedUser(userId = uId, name = name)
+                                    }
                                 )
-                                if (eventToEdit == null) {
-                                    repository.createEvent(ev)
+
+                                if (eventToEdit == null || ev.id.isBlank()) {
+                                    // crear nuevo
+                                    val newId = repository.createEvent(ev)
+                                    // Si se creó correctamente y hay invitados guardados en SessionManager,
+                                    // invitamos desde backend usando el nuevo id:
+                                    if (!newId.isNullOrBlank() && EventSessionManager.invitedUsers.isNotEmpty()) {
+                                        repository.invitePlayersToEvent(newId, EventSessionManager.invitedUsers,
+                                            EventSessionManager.invitedUsers.mapIndexed { idx, id -> mapOf("id" to id, "name" to (EventSessionManager.invitedUserNames.getOrNull(idx) ?: "")) }
+                                        )
+                                    }
                                 } else {
-                                    repository.updateEvent(ev) // 🔹 usa un método update real
+                                    // actualizar: se asume que FirestoreRepository tiene updateEvent()
+                                    repository.updateEvent(ev)
                                 }
 
                                 isSaving = false
+                                // limpiar sesión (opcional): solo si quieres descartar datos en memoria
+                                EventSessionManager.clear()
                                 onEventCreated()
                             }
                         }
@@ -171,7 +183,7 @@ fun CreateEventScreen(
                     modifier = Modifier
                         .padding(20.dp)
                         .fillMaxWidth()
-                        .verticalScroll(scrollState), // 👈 permite hacer scroll
+                        .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Nombre del evento
@@ -180,7 +192,6 @@ fun CreateEventScreen(
                         value = eventName,
                         onValueChange = {
                             eventName = it
-                            EventSessionManager.eventName = it
                         },
                         label = { Text("Nombre del evento") }
                     )
@@ -189,13 +200,11 @@ fun CreateEventScreen(
                         value = eventDescription,
                         onValueChange = {
                             eventDescription = it
-                            EventSessionManager.eventDescription = it
                         },
                         label = { Text("Descripción") }
                     )
 
-
-                    // Fecha y hora (abrir Date & Time pickers)
+                    // Fecha y hora
                     Text("Fecha y hora", fontWeight = FontWeight.SemiBold)
                     OutlinedTextField(
                         value = formattedDate,
@@ -204,9 +213,9 @@ fun CreateEventScreen(
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             IconButton(onClick = {
-                                // abrir DatePicker then TimePicker
                                 showDateTimePicker(ctx, calendar) { newDate ->
                                     eventDate = newDate
+                                    EventSessionManager.eventDate = newDate
                                 }
                             }) {
                                 Icon(Icons.Default.ArrowBack, contentDescription = "Abrir fecha", tint = Color.Gray)
@@ -237,79 +246,47 @@ fun CreateEventScreen(
                             shape = RoundedCornerShape(10.dp)
                         )
                         Button(
-                            onClick = {
-                                // Navega a pantalla de mapa
-                                onOpenMapClick()
-                            },
+                            onClick = { onOpenMapClick() },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C)),
                             shape = RoundedCornerShape(20.dp)
-                        ) {
-                            Text("Abrir mapa", color = Color.Black)
-                        }
+                        ) { Text("Abrir mapa", color = Color.Black) }
                     }
 
                     // Invitados
                     Text("Invitados", fontWeight = FontWeight.SemiBold)
                     Button(
                         onClick = {
-                            // Crea un objeto temporal de Event con los datos actuales del formulario
+                            // PASAMOS el evento actual. Si no existe en BD todavía, id = ""
                             val tempEvent = eventToEdit ?: Event(
-                                id = java.util.UUID.randomUUID().toString(),
-                                ownerId = userId,               // Ajusta según cómo obtienes el id del usuario actual
-                                ownerName = userName,           // Ajusta según tu variable real
+                                id = "", // IMPORTANT: id vacío => InvitePlayersScreen no intentará escribir en Firestore
+                                ownerId = userId,
+                                ownerName = userName,
                                 name = eventName,
-                                description = eventDescription, // Usa el nombre real de tu campo de descripción
-                                date = eventDate,               // Ya es un Date?, no uses .time
-                                location = EventLocation(
-                                    latitude = selectedLat ?: 0.0,  // Si tienes estas coordenadas
-                                    longitude = selectedLng ?: 0.0,
-                                    address = eventLocation         // Este es el texto que ya guardas del mapa
-                                )
+                                description = eventDescription,
+                                date = eventDate,
+                                location = EventLocation(address = eventLocation)
                             )
-
-                            // Llama la navegación a InvitePlayersScreen
                             onInvitePlayersClick(tempEvent)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C))
-                    ) {
-                        Text("+ Agregar jugadores", color = Color.Black)
-                    }
+                    ) { Text("+ Agregar jugadores", color = Color.Black) }
 
-                    // 🔹 Mostrar los jugadores invitados (si existen)
-                    if (EventSessionManager.invitedUsers.isNotEmpty()) {
+                    // Mostrar los jugadores invitados (si existen)
+                    if (EventSessionManager.invitedUserNames.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Jugadores invitados:",
-                            color = Color.DarkGray,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                        ) {
-                            EventSessionManager.invitedUserNames.forEach { userName ->
-                                Text(
-                                    text = userName,
-                                    color = Color.DarkGray,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-                                )
+                        Text("Jugadores invitados:", color = Color.DarkGray, fontSize = 16.sp)
+                        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+                            EventSessionManager.invitedUserNames.forEach { nm ->
+                                Text(text = nm, color = Color.DarkGray, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp, top = 4.dp))
                             }
                         }
                     }
-
 
                     // Lista de compras
                     Text("Lista de compras", fontWeight = FontWeight.SemiBold)
                     TextField(
                         value = shoppingList,
-                        onValueChange = {
-                            shoppingList = it
-                            EventSessionManager.shoppingList = it
-                        },
+                        onValueChange = { shoppingList = it },
                         placeholder = { Text("Ingrese su lista de compras (separada por comas)") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
@@ -321,7 +298,7 @@ fun CreateEventScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Botón Guardar
+                    // Botón Guardar (principal)
                     Button(
                         onClick = {
                             scope.launch {
@@ -329,19 +306,20 @@ fun CreateEventScreen(
                                 val newEvent = Event(
                                     ownerId = userId,
                                     ownerName = userName,
-                                    name = EventSessionManager.eventName,
-                                    description = EventSessionManager.eventDescription,
-                                    date = EventSessionManager.eventDate ?: Date(),
+                                    name = EventSessionManager.eventName.ifBlank { eventName },
+                                    description = EventSessionManager.eventDescription.ifBlank { eventDescription },
+                                    date = EventSessionManager.eventDate ?: eventDate,
                                     location = EventLocation(
                                         latitude = EventSessionManager.latitude ?: 0.0,
                                         longitude = EventSessionManager.longitude ?: 0.0,
-                                        address = EventSessionManager.eventLocation
+                                        address = EventSessionManager.eventLocation.ifBlank { eventLocation }
                                     ),
                                     shoppingList = EventSessionManager.shoppingList
+                                        .ifBlank { shoppingList }
                                         .split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                                    invitedUsers = EventSessionManager.invitedUsers.mapIndexed { index, userId ->
-                                        val name = EventSessionManager.invitedUserNames.getOrNull(index) ?: ""
-                                        com.example.forgetshyness.data.InvitedUser(userId = userId, name = name)
+                                    invitedUsers = EventSessionManager.invitedUsers.mapIndexed { idx, uId ->
+                                        val name = EventSessionManager.invitedUserNames.getOrNull(idx) ?: ""
+                                        com.example.forgetshyness.data.InvitedUser(userId = uId, name = name)
                                     }
                                 )
                                 repository.createEvent(newEvent)
@@ -353,9 +331,7 @@ fun CreateEventScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF800020)),
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Text("Guardar", color = Color.White)
-                    }
+                    ) { Text("Guardar", color = Color.White) }
 
                     if (isSaving) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -367,9 +343,7 @@ fun CreateEventScreen(
     }
 }
 
-
-
-/** Helper: muestra DatePicker + TimePicker y devuelve Date vía callback */
+/** muestra DatePicker + TimePicker y devuelve Date vía callback */
 private fun showDateTimePicker(ctx: Context, calendar: Calendar, onPicked: (Date) -> Unit) {
     DatePickerDialog(
         ctx,
@@ -384,7 +358,7 @@ private fun showDateTimePicker(ctx: Context, calendar: Calendar, onPicked: (Date
                     calendar.set(Calendar.HOUR_OF_DAY, hour)
                     calendar.set(Calendar.MINUTE, minute)
                     val newDate = calendar.time
-                    EventSessionManager.eventDate = newDate // 🔹 GUARDAMOS PERSISTENTEMENTE
+                    EventSessionManager.eventDate = newDate // guardamos en Session manager
                     onPicked(newDate)
                 },
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -397,6 +371,7 @@ private fun showDateTimePicker(ctx: Context, calendar: Calendar, onPicked: (Date
         calendar.get(Calendar.DAY_OF_MONTH)
     ).show()
 }
+
 
 
 
