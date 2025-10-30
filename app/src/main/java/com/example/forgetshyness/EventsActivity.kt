@@ -47,7 +47,7 @@ class EventsActivity : ComponentActivity() {
                     onLocationConsumed = { selectedLocation = null },
                     onEventCreated = { currentScreen = "list" },
                     onBackClick = { currentScreen = "list" },
-                    onOpenMapClick = { currentScreen = "map" },  // ✅ ESTA LÍNEA
+                    onOpenMapClick = { currentScreen = "map" },  //
                     onInvitePlayersClick = { event ->
                         selectedEvent = event
                         currentScreen = "invite"

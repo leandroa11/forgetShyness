@@ -16,8 +16,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.forgetshyness.R
 import com.example.forgetshyness.data.Event
 import com.example.forgetshyness.data.FirestoreRepository
 import kotlinx.coroutines.launch
@@ -49,7 +51,7 @@ fun EventListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Asistente de planificación",
+                        text = stringResource(R.string.event_list_title),
                         color = Color.White
                     )
                 },
@@ -65,7 +67,7 @@ fun EventListScreen(
                     ) {
                         Icon(
                             painter = painterResource(id = com.example.forgetshyness.R.drawable.flecha_izquierda),
-                            contentDescription = "Volver",
+                            contentDescription = stringResource(R.string.content_description_back),
                             tint = Color.Yellow
                         )
                     }
@@ -80,7 +82,7 @@ fun EventListScreen(
                 onClick = onCreateEventClick,
                 containerColor = Color(0xFFFFCB3C)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Crear evento", tint = Color.Black)
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.create_event_button), tint = Color.Black)
             }
         }
     ) { padding ->
@@ -107,7 +109,7 @@ fun EventListScreen(
                 ) {
                     item {
                         Text(
-                            text = "Hola, $userName 👋",
+                            text = stringResource(R.string.greeting_user, userName),
                             color = Color.White,
                             fontSize = 20.sp,
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -123,13 +125,13 @@ fun EventListScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    "Aún sin eventos 🎉",
+                                    stringResource(R.string.no_events_title),
                                     color = Color.White,
                                     fontSize = 22.sp
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
-                                    "¡Empecemos la diversión!",
+                                    stringResource(R.string.motivation_events_subtitle),
                                     color = Color.White,
                                     fontSize = 16.sp
                                 )
@@ -140,7 +142,7 @@ fun EventListScreen(
                     if (invitations.isNotEmpty()) {
                         item {
                             Text(
-                                "📩 Invitaciones recibidas",
+                                stringResource(R.string.invitations_section_title),
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 modifier = Modifier.padding(top = 12.dp)
@@ -159,7 +161,7 @@ fun EventListScreen(
                     if (createdEvents.isNotEmpty()) {
                         item {
                             Text(
-                                "🎊 Tus eventos",
+                                stringResource(R.string.your_events),
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 modifier = Modifier.padding(top = 12.dp)
@@ -189,9 +191,9 @@ fun EventCard(event: Event, onClick: () -> Unit) {
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(event.name, fontSize = 18.sp, color = Color.Black)
-            Text("Anfitrión: ${event.ownerName}", color = Color.DarkGray, fontSize = 14.sp)
-            Text("Ubicación: ${event.location.address}", color = Color.DarkGray, fontSize = 14.sp)
-            Text("Invitados: ${event.invitedUsers.size}", color = Color.DarkGray, fontSize = 14.sp)
+            Text(stringResource(R.string.event_host_label, event.ownerName), color = Color.DarkGray, fontSize = 14.sp)
+            Text(stringResource(R.string.event_location_l, event.location.address), color = Color.DarkGray, fontSize = 14.sp)
+            Text(stringResource(R.string.event_guests_l, event.invitedUsers.size), color = Color.DarkGray, fontSize = 14.sp)
         }
     }
 }
@@ -208,8 +210,8 @@ fun InvitationCard(event: Event, userId: String, repository: FirestoreRepository
             .padding(vertical = 6.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("Invitación: ${event.name}", fontSize = 18.sp, color = Color.Black)
-            Text("Anfitrión: ${event.ownerName}", color = Color.DarkGray, fontSize = 14.sp)
+            Text(stringResource(R.string.invitation_card_title, event.name), fontSize = 18.sp, color = Color.Black)
+            Text(stringResource(R.string.invitation_card_title), color = Color.DarkGray, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -225,7 +227,7 @@ fun InvitationCard(event: Event, userId: String, repository: FirestoreRepository
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6FCF97))
                 ) {
-                    Text("Aceptar")
+                    Text(stringResource(R.string.accept_button))
                 }
                 Button(
                     onClick = {
@@ -236,7 +238,7 @@ fun InvitationCard(event: Event, userId: String, repository: FirestoreRepository
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373))
                 ) {
-                    Text("Rechazar")
+                    Text(stringResource(R.string.decline_button))
                 }
             }
         }

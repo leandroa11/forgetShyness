@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.forgetshyness.R
@@ -99,10 +100,10 @@ fun SelectLocationScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Seleccionar ubicación", color = Color.White) },
+                title = { Text(stringResource(R.string.select_location_title), color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.content_description_back), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -111,7 +112,9 @@ fun SelectLocationScreen(
             )
         }
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        Box(Modifier
+            .fillMaxSize()
+            .padding(padding)) {
 
             // 🗺️ Mapa
             GoogleMap(
@@ -126,7 +129,7 @@ fun SelectLocationScreen(
                 properties = MapProperties(isMyLocationEnabled = hasPermission)
             ) {
                 selectedLocation?.let {
-                    Marker(state = MarkerState(position = it), title = "Ubicación seleccionada")
+                    Marker(state = MarkerState(position = it), title = stringResource(R.string.selected_location))
                 }
             }
 
@@ -152,7 +155,7 @@ fun SelectLocationScreen(
                             }
                         } else predictions = emptyList()
                     },
-                    placeholder = { Text("Buscar ubicación...") },
+                    placeholder = { Text(stringResource(R.string.search_location)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
@@ -183,7 +186,8 @@ fun SelectLocationScreen(
                                                 prediction.placeId,
                                                 listOf(Place.Field.LAT_LNG, Place.Field.ADDRESS)
                                             )
-                                            val place = placesClient.fetchPlace(placeRequest).await().place
+                                            val place =
+                                                placesClient.fetchPlace(placeRequest).await().place
                                             val latLng = place.latLng
                                             if (latLng != null) {
                                                 selectedLocation = latLng
@@ -201,7 +205,7 @@ fun SelectLocationScreen(
                 }
             }
 
-            // ✅ Botón OK
+            // button ok
             Button(
                 onClick = {
                     selectedLocation?.let { latLng ->
@@ -218,7 +222,7 @@ fun SelectLocationScreen(
                     .padding(bottom = 80.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C))
             ) {
-                Text("OK", color = Color.Black)
+                Text(stringResource(R.string.Button_ok), color = Color.Black)
             }
         }
     }
@@ -231,9 +235,9 @@ private fun getAddressFromLatLng(context: android.content.Context, latLng: LatLn
     return try {
         val geocoder = Geocoder(context, Locale.getDefault())
         val address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-        address?.firstOrNull()?.getAddressLine(0) ?: "Ubicación sin dirección"
+        address?.firstOrNull()?.getAddressLine(0) ?: context.getString(R.string.no_address_found)
     } catch (e: Exception) {
-        "Ubicación sin dirección"
+        context.getString(R.string.no_address_found)
     }
 }
 

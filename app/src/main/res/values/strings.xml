@@ -105,6 +105,64 @@
     <string name="challenge_crazy_love">¿Qué es lo más loco que has hecho por amor?</string>
 
 
-    -- <!-- Verdad o Reto -->
+    -- <!-- Eventos -->
+    <string name="create_event_title">Crear evento</string>
+    <string name="edit_event_title">Editar evento</string>
+    <string name="save_event_button">Guardar</string>
+    <string name="event_name_label">Nombre del evento</string>
+    <string name="event_description_label">Descripción</string>
+    <string name="event_date_time_label">Fecha y hora</string>
+    <string name="open_date_content_description">Abrir fecha</string>
+    <string name="back_content_description">Volver</string>
+    <string name="event_location_label">Ubicación</string>
+    <string name="open_map_button">Abrir mapa</string>
+    <string name="event_guests_label">Invitados</string>
+    <string name="add_players_button">+ Agregar jugadores</string>
+    <string name="invited_players_label">Jugadores invitados:</string>
+    <string name="shopping_list_label">Lista de compras</string>
+    <string name="shopping_list_placeholder">Ingrese su lista de compras (separada por comas)</string>
+    <string name="Eventsave">Guardar</string>
+
+
+    -- <!-- Detalle Eventos -->
+    <string name="event_details_title">Detalles del evento</string>
+    <string name="content_description_edit">Editar</string>
+    <string name="content_description_invite">Invitar</string>
+    <string name="organizer_l">Organizador: %1$s</string>
+    <string name="date_l">Fecha: %1$s</string>
+    <string name="location_l">Ubicación: %1$s</string>
+    <string name="description_l">Descripción:</string>
+    <string name="guests_label">Invitados:</string>
+
+    -- <!-- Lista Eventos -->
+    <string name="event_list_title">Asistente de planificación</string>
+    <string name="create_event_button">Crear evento</string>
+    <string name="greeting_user">Hola, %1$s 👋</string>
+    <string name="no_events_title">Aún sin eventos 🎉</string>
+    <string name="motivation_events_subtitle">¡Empecemos la diversión!</string>
+    <string name="invitations_section_title">📩 Invitaciones recibidas</string>
+    <string name="your_events">🎊 Tus eventos</string>
+    <string name="event_host_label">Anfitrión: %1$s</string>
+    <string name="event_location_l">Ubicación: %1$s</string>
+    <string name="event_guests_l">Invitados: %1$d</string>
+    <string name="invitation_card_title">Invitación: %1$s</string>
+    <string name="accept_button">Aceptar</string>
+    <string name="decline_button">Rechazar</string>
+
+    -- <!-- Invite Players -->
+    <string name="invite_players_title">Invitar jugadores</string>
+    <string name="select_players_prompt">Selecciona los jugadores a invitar:</string>
+    <string name="send_invitations_button">Enviar invitaciones (%1$d)</string>
+
+    -- <!-- Location Events -->
+
+    <string name="select_location_title">Seleccionar ubicación</string>
+    <string name="selected_location">Ubicación seleccionada</string>
+    <string name="search_location">Buscar ubicación...</string>
+    <string name="no_address_found">Ubicación sin dirección</string>
+    <string name="Button_ok">OK</string>
+
+    -- <!--  Events -->
+
 
 </resources>

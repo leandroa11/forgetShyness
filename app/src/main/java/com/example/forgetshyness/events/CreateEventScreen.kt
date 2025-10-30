@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,7 +107,8 @@ fun CreateEventScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = if (eventToEdit == null) "Crear evento" else "Editar evento",
+                        text = if (eventToEdit == null) stringResource(com.example.forgetshyness.R.string.create_event_title) else stringResource(
+                            com.example.forgetshyness.R.string.edit_event_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -114,7 +116,9 @@ fun CreateEventScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.Yellow)
+                        Icon(Icons.Default.ArrowBack,
+                            contentDescription = stringResource(com.example.forgetshyness.R.string.back_content_description),
+                            tint = Color.Yellow)
                     }
                 },
                 actions = {
@@ -160,7 +164,7 @@ fun CreateEventScreen(
                             }
                         }
                     }) {
-                        Icon(Icons.Default.Check, contentDescription = "Guardar", tint = Color(0xFFFFCB3C))
+                        Icon(Icons.Default.Check, contentDescription = stringResource(com.example.forgetshyness.R.string.save_event_button), tint = Color(0xFFFFCB3C))
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFFC44545))
@@ -193,13 +197,13 @@ fun CreateEventScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Nombre del evento
-                    Text("Nombre del evento", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(com.example.forgetshyness.R.string.event_name_label), fontWeight = FontWeight.SemiBold)
                     TextField(
                         value = eventName,
                         onValueChange = {
                             eventName = it
                         },
-                        label = { Text("Nombre del evento") }
+                        label = { Text(stringResource(com.example.forgetshyness.R.string.event_name_label)) }
                     )
 
                     TextField(
@@ -207,11 +211,11 @@ fun CreateEventScreen(
                         onValueChange = {
                             eventDescription = it
                         },
-                        label = { Text("Descripción") }
+                        label = { Text(stringResource(com.example.forgetshyness.R.string.event_description_label)) }
                     )
 
                     // Fecha y hora
-                    Text("Fecha y hora", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(com.example.forgetshyness.R.string.event_date_time_label), fontWeight = FontWeight.SemiBold)
                     OutlinedTextField(
                         value = formattedDate,
                         onValueChange = {},
@@ -224,7 +228,8 @@ fun CreateEventScreen(
                                     EventSessionManager.eventDate = newDate
                                 }
                             }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Abrir fecha", tint = Color.Gray)
+                                Icon(Icons.Default.ArrowBack, contentDescription = stringResource(
+                                    com.example.forgetshyness.R.string.open_date_content_description), tint = Color.Gray)
                             }
                         },
                         colors = TextFieldDefaults.colors(
@@ -235,7 +240,7 @@ fun CreateEventScreen(
                     )
 
                     // Ubicación
-                    Text("Ubicación", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(com.example.forgetshyness.R.string.event_location_label), fontWeight = FontWeight.SemiBold)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         TextField(
                             value = eventLocation,
@@ -243,7 +248,7 @@ fun CreateEventScreen(
                                 eventLocation = it
                                 EventSessionManager.eventLocation = it
                             },
-                            placeholder = { Text("Ubicación") },
+                            placeholder = { Text(stringResource(com.example.forgetshyness.R.string.event_location_label)) },
                             modifier = Modifier.weight(1f),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
@@ -255,11 +260,11 @@ fun CreateEventScreen(
                             onClick = { onOpenMapClick() },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C)),
                             shape = RoundedCornerShape(20.dp)
-                        ) { Text("Abrir mapa", color = Color.Black) }
+                        ) { Text(stringResource(com.example.forgetshyness.R.string.open_map_button), color = Color.Black) }
                     }
 
                     // Invitados
-                    Text("Invitados", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(com.example.forgetshyness.R.string.event_guests_label), fontWeight = FontWeight.SemiBold)
                     Button(
                         onClick = {
                             // PASAMOS el evento actual. Si no existe en BD todavía, id = ""
@@ -275,13 +280,13 @@ fun CreateEventScreen(
                             onInvitePlayersClick(tempEvent)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C))
-                    ) { Text("+ Agregar jugadores", color = Color.Black) }
+                    ) { Text(stringResource(com.example.forgetshyness.R.string.add_players_button), color = Color.Black) }
 
                     // Mostrar los jugadores invitados (si existen)
                     if (EventSessionManager.invitedUsers.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Jugadores invitados:",
+                            text = stringResource(com.example.forgetshyness.R.string.invited_players_label),
                             color = Color.DarkGray,
                             fontSize = 16.sp,
                             modifier = Modifier.padding(bottom = 4.dp)
@@ -305,11 +310,11 @@ fun CreateEventScreen(
 
 
                     // Lista de compras
-                    Text("Lista de compras", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(com.example.forgetshyness.R.string.shopping_list_label), fontWeight = FontWeight.SemiBold)
                     TextField(
                         value = shoppingList,
                         onValueChange = { shoppingList = it },
-                        placeholder = { Text("Ingrese su lista de compras (separada por comas)") },
+                        placeholder = { Text(stringResource(com.example.forgetshyness.R.string.shopping_list_placeholder)) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
@@ -353,7 +358,7 @@ fun CreateEventScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF800020)),
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp)
-                    ) { Text("Guardar", color = Color.White) }
+                    ) { Text(stringResource(com.example.forgetshyness.R.string.Eventsave), color = Color.White) }
 
                     if (isSaving) {
                         Spacer(modifier = Modifier.height(8.dp))

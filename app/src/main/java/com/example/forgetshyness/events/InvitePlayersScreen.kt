@@ -13,8 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.forgetshyness.R
 import com.example.forgetshyness.data.EventSessionManager
 import com.example.forgetshyness.data.FirestoreRepository
 import kotlinx.coroutines.launch
@@ -47,10 +49,11 @@ fun InvitePlayersScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Invitar jugadores", color = Color.White) },
+                title = { Text(stringResource(com.example.forgetshyness.R.string.invite_players_title), color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.content_description_back), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFFC44545))
@@ -68,7 +71,7 @@ fun InvitePlayersScreen(
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
-                        text = "Selecciona los jugadores a invitar:",
+                        text = stringResource(R.string.select_players_prompt),
                         fontSize = 18.sp,
                         color = Color.White,
                         modifier = Modifier.padding(16.dp)
@@ -84,7 +87,9 @@ fun InvitePlayersScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        if (isSelected) selectedUsers.remove(uId) else selectedUsers.add(uId)
+                                        if (isSelected) selectedUsers.remove(uId) else selectedUsers.add(
+                                            uId
+                                        )
                                     }
                                     .padding(16.dp),
                                 verticalAlignment = Alignment.CenterVertically
@@ -135,7 +140,7 @@ fun InvitePlayersScreen(
                             .padding(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C), contentColor = Color.Black)
                     ) {
-                        Text("Enviar invitaciones (${selectedUsers.size})")
+                        Text(stringResource(R.string.send_invitations_button, selectedUsers.size))
                     }
                 }
             }
