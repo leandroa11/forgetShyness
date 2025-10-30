@@ -127,7 +127,6 @@ fun InvitePlayersScreen(
                 .align(Alignment.TopStart)
                 .padding(16.dp)
                 .clip(CircleShape)
-                .background(Color.Black.copy(alpha = 0.3f))
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.flecha_izquierda),
