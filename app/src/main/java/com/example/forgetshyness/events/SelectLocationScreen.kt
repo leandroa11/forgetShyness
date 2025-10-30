@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.forgetshyness.R
@@ -48,7 +49,6 @@ fun SelectLocationScreen(
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val scope = rememberCoroutineScope()
 
-    // ✅ Evitar múltiples inicializaciones de Places
     val placesClient: PlacesClient = remember {
         if (!Places.isInitialized()) {
             Places.initialize(context, context.getString(R.string.google_maps_key))
@@ -56,7 +56,6 @@ fun SelectLocationScreen(
         Places.createClient(context)
     }
 
-    // Estados
     var hasPermission by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<LatLng?>(null) }
     var searchQuery by remember { mutableStateOf(previousAddress ?: "") }
@@ -66,12 +65,10 @@ fun SelectLocationScreen(
         position = CameraPosition.fromLatLngZoom(LatLng(4.60971, -74.08175), 14f)
     }
 
-    // ✅ Si el usuario tenía una dirección previa, mostrarla al volver
     LaunchedEffect(previousAddress) {
         if (!previousAddress.isNullOrBlank()) searchQuery = previousAddress
     }
 
-    // ✅ Pedir permiso de ubicación
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -99,10 +96,10 @@ fun SelectLocationScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Seleccionar ubicación", color = Color.White) },
+                title = { Text(stringResource(R.string.select_location_title), color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.content_desc_back), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -113,7 +110,6 @@ fun SelectLocationScreen(
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
 
-            // 🗺️ Mapa
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
@@ -126,11 +122,10 @@ fun SelectLocationScreen(
                 properties = MapProperties(isMyLocationEnabled = hasPermission)
             ) {
                 selectedLocation?.let {
-                    Marker(state = MarkerState(position = it), title = "Ubicación seleccionada")
+                    Marker(state = MarkerState(position = it), title = stringResource(R.string.marker_title_selected_location))
                 }
             }
 
-            // 🔍 Buscador
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,7 +147,7 @@ fun SelectLocationScreen(
                             }
                         } else predictions = emptyList()
                     },
-                    placeholder = { Text("Buscar ubicación...") },
+                    placeholder = { Text(stringResource(R.string.placeholder_search_location)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
@@ -201,7 +196,6 @@ fun SelectLocationScreen(
                 }
             }
 
-            // ✅ Botón OK
             Button(
                 onClick = {
                     selectedLocation?.let { latLng ->
@@ -218,26 +212,18 @@ fun SelectLocationScreen(
                     .padding(bottom = 80.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C))
             ) {
-                Text("OK", color = Color.Black)
+                Text(stringResource(R.string.button_ok), color = Color.Black)
             }
         }
     }
 }
 
-/**
- * 🧭 Convierte coordenadas a una dirección legible
- */
 private fun getAddressFromLatLng(context: android.content.Context, latLng: LatLng): String {
     return try {
         val geocoder = Geocoder(context, Locale.getDefault())
         val address = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-        address?.firstOrNull()?.getAddressLine(0) ?: "Ubicación sin dirección"
+        address?.firstOrNull()?.getAddressLine(0) ?: context.getString(R.string.error_location_no_address)
     } catch (e: Exception) {
-        "Ubicación sin dirección"
+        context.getString(R.string.error_location_no_address)
     }
 }
-
-
-
-
-

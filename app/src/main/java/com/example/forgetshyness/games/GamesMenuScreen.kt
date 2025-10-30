@@ -64,7 +64,7 @@ fun GamesMenuScreen(
             Icon(
                 painter = painterResource(id = R.drawable.flecha_izquierda),
                 contentDescription = "Volver",
-                tint = Color.Yellow,
+                tint = Color(0xFFFFCB3C),
                 modifier = Modifier.size(32.dp)
             )
         }

@@ -18,7 +18,6 @@ class EventsActivity : ComponentActivity() {
         val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
         val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
 
-        // 🟡 Aquí guardamos el usuario actual en memoria
         EventSessionManager.currentUserId = userId
 
         setContent {
@@ -31,23 +30,37 @@ class EventsActivity : ComponentActivity() {
                     userId = userId,
                     userName = userName,
                     repository = repository,
-                    onCreateEventClick = { currentScreen = "create" },
+                    onCreateEventClick = {
+                        selectedEvent = null
+                        EventSessionManager.clear()
+                        currentScreen = "create"
+                    },
                     onEventClick = {
                         selectedEvent = it
+                        EventSessionManager.clear() // Limpia por si había algo de una creación anterior
                         currentScreen = "detail"
-                    }
+                    },
+                    onBackClick = { onBackPressedDispatcher.onBackPressed() } // <- CORREGIDO
                 )
 
                 "create" -> CreateEventScreen(
+                    repository = repository,
                     userId = userId,
                     userName = userName,
-                    repository = repository,
                     eventToEdit = selectedEvent,
                     selectedLocation = selectedLocation,
                     onLocationConsumed = { selectedLocation = null },
-                    onEventCreated = { currentScreen = "list" },
-                    onBackClick = { currentScreen = "list" },
-                    onOpenMapClick = { currentScreen = "map" },  // ✅ ESTA LÍNEA
+                    onEventCreated = { // Limpiar estado después de crear/editar
+                        selectedEvent = null
+                        EventSessionManager.clear()
+                        currentScreen = "list"
+                    },
+                    onBackClick = { // Limpiar estado al volver
+                        selectedEvent = null
+                        EventSessionManager.clear()
+                        currentScreen = "list"
+                    },
+                    onOpenMapClick = { currentScreen = "map" },
                     onInvitePlayersClick = { event ->
                         selectedEvent = event
                         currentScreen = "invite"
@@ -57,7 +70,6 @@ class EventsActivity : ComponentActivity() {
                 "map" -> SelectLocationScreen(
                     previousAddress = selectedLocation,
                     onLocationSelected = { address ->
-                        EventSessionManager.eventLocation = address
                         selectedLocation = address
                         currentScreen = "create"
                     },
@@ -69,11 +81,11 @@ class EventsActivity : ComponentActivity() {
                 "invite" -> selectedEvent?.let { event ->
                     InvitePlayersScreen(
                         eventId = event.id,
+                        userId = userId,
                         repository = repository,
-                        userId = userId,              // ✅ nuevo parámetro
-                        onBackClick = { currentScreen = "create" }, // ✅ regresar a crear
+                        onBackClick = { currentScreen = "create" },
                         onInvitationsSent = {
-                            currentScreen = "create" // ✅ regresar al formulario
+                            currentScreen = "create"
                         }
                     )
                 }
@@ -85,15 +97,14 @@ class EventsActivity : ComponentActivity() {
                         onBackClick = { currentScreen = "list" },
                         onEditClick = {
                             selectedEvent = it
+                            EventSessionManager.clear() // Limpia para asegurar que se carguen los datos del evento a editar
                             currentScreen = "create"
                         },
                         onEventDeleted = { currentScreen = "list" },
                         onInviteClick = { eventToInvite ->
-                            selectedEvent = eventToInvite   // ✅ esta es la variable remember de arriba
+                            selectedEvent = eventToInvite
                             currentScreen = "invite"
                         }
-
-
                     )
                 }
 
@@ -101,10 +112,3 @@ class EventsActivity : ComponentActivity() {
         }
     }
 }
-
-
-
-
-
-
-

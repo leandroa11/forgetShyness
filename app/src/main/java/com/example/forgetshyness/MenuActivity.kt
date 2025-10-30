@@ -21,6 +21,7 @@ class MenuActivity : ComponentActivity() {
         val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: "Usuario"
         val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
         Log.d("MenuActivity", "User ID: $userId")
+        Log.d("MenuActivity", "Usuario: $userName")
 
         setContent {
             HomeScreenWithSeed(
@@ -88,4 +89,3 @@ fun HomeScreenWithSeed(
         onNavigateToEvents = onNavigateToEvents
     )
 }
-
