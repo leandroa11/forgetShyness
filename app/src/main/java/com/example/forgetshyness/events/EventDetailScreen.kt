@@ -121,9 +121,6 @@ fun EventDetailScreen(
                 IconButton(onClick = { onEditClick(event) }) {
                     Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.content_desc_edit), tint = Color(0xFFFFCB3C))
                 }
-                IconButton(onClick = { onInviteClick(event) }) {
-                    Icon(Icons.Default.GroupAdd, contentDescription = stringResource(R.string.content_desc_invite), tint = Color.White)
-                }
                 IconButton(
                     onClick = {
                         scope.launch {

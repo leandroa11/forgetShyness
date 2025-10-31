@@ -27,6 +27,7 @@ import com.example.forgetshyness.data.Event
 import com.example.forgetshyness.data.EventLocation
 import com.example.forgetshyness.data.EventSessionManager
 import com.example.forgetshyness.data.FirestoreRepository
+import com.example.forgetshyness.data.InvitedUser
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -59,24 +60,37 @@ fun CreateEventScreen(
     val formattedDate by remember(eventDate) { derivedStateOf { dateFormat.format(eventDate) } }
     val calendar = remember(eventDate) { Calendar.getInstance().apply { time = eventDate } }
 
+    // ✅ Solo inicializar UNA VEZ cuando se carga un evento para editar
+    // Usar el EventSessionManager para persistir el estado de inicialización
     LaunchedEffect(eventToEdit?.id) {
-        eventToEdit?.let { ev ->
-            eventName = ev.name
-            eventDescription = ev.description
-            eventDate = ev.date ?: Date()
-            eventLocation = ev.location.address
-            shoppingList = ev.shoppingList.joinToString(", ")
+        val eventId = eventToEdit?.id ?: ""
+        // Solo inicializar si el evento cambió Y no se ha inicializado este evento específico
+        if (eventToEdit != null && EventSessionManager.currentEditingEventId != eventId) {
+            Log.d("CreateEventScreen", "Inicializando evento para editar: ${eventToEdit.id}")
 
-            EventSessionManager.eventName = ev.name
-            EventSessionManager.eventDescription = ev.description
-            EventSessionManager.eventDate = ev.date
-            EventSessionManager.eventLocation = ev.location.address
+            EventSessionManager.currentEditingEventId = eventId
+
+            eventName = eventToEdit.name
+            eventDescription = eventToEdit.description
+            eventDate = eventToEdit.date ?: Date()
+            eventLocation = eventToEdit.location.address
+            shoppingList = eventToEdit.shoppingList.joinToString(", ")
+
+            EventSessionManager.eventName = eventToEdit.name
+            EventSessionManager.eventDescription = eventToEdit.description
+            EventSessionManager.eventDate = eventToEdit.date
+            EventSessionManager.eventLocation = eventToEdit.location.address
             EventSessionManager.shoppingList = shoppingList
 
+            // ✅ Solo limpiar e inicializar si realmente es la primera vez
             EventSessionManager.invitedUsers.clear()
-            /* EventSessionManager.invitedUserNames.clear() */
-            EventSessionManager.invitedUsers.addAll(ev.invitedUsers.map { it.userId })
-            EventSessionManager.invitedUserNames.addAll(ev.invitedUsers.map { it.name })
+            EventSessionManager.invitedUserNames.clear()
+            EventSessionManager.invitedUsers.addAll(eventToEdit.invitedUsers.map { it.userId })
+            EventSessionManager.invitedUserNames.addAll(eventToEdit.invitedUsers.map { it.name })
+
+            Log.d("CreateEventScreen", "Inicializados ${EventSessionManager.invitedUsers.size} invitados")
+        } else if (eventToEdit != null) {
+            Log.d("CreateEventScreen", "Evento ${eventToEdit.id} ya inicializado, saltando reinicialización")
         }
     }
 
@@ -94,9 +108,51 @@ fun CreateEventScreen(
     LaunchedEffect(shoppingList) { EventSessionManager.shoppingList = shoppingList }
     LaunchedEffect(eventDate) { EventSessionManager.eventDate = eventDate } // garantiza persistencia al navegar
 
+    // ✅ Observar directamente el SnapshotStateList sin derivar
+    val invitedNamesState = EventSessionManager.invitedUserNames
+
+    // ✅ Forzar recomposición cuando cambian los invitados
+    val invitedCount = EventSessionManager.invitedUsers.size
+    val namesCount = EventSessionManager.invitedUserNames.size
+
+    // ✅ Log para debug - se ejecuta en cada recomposición
+    Log.d("CreateEventScreen", "Recomposición - IDs: $invitedCount, Nombres: $namesCount - ${invitedNamesState.toList()}")
+
     val saveEvent: () -> Unit = {
         scope.launch {
             isSaving = true
+
+            Log.d("CreateEventScreen", "=== GUARDANDO EVENTO ===")
+            Log.d("CreateEventScreen", "IDs en SessionManager: ${EventSessionManager.invitedUsers.toList()}")
+            Log.d("CreateEventScreen", "Nombres en SessionManager: ${EventSessionManager.invitedUserNames.toList()}")
+
+            // ✅ FIX: Construir correctamente la lista sincronizada de invitados
+            val finalInvitedUsers = if (eventToEdit != null) {
+                // Crear mapa de usuarios originales para preservar el status
+                val originalGuests = eventToEdit.invitedUsers.associateBy { it.userId }
+
+                // Sincronizar IDs con nombres usando el índice
+                EventSessionManager.invitedUsers.mapIndexed { index, userId ->
+                    val userName = EventSessionManager.invitedUserNames.getOrNull(index) ?: ""
+
+                    // Si el usuario ya existía, preservar su información (especialmente el status)
+                    originalGuests[userId]?.copy(name = userName) ?: InvitedUser(
+                        userId = userId,
+                        name = userName,
+                        status = "pending"
+                    )
+                }
+            } else {
+                // Para eventos nuevos, simplemente mapear IDs con nombres
+                EventSessionManager.invitedUsers.mapIndexed { index, userId ->
+                    InvitedUser(
+                        userId = userId,
+                        name = EventSessionManager.invitedUserNames.getOrNull(index) ?: "",
+                        status = "pending"
+                    )
+                }
+            }
+
             val eventToSave = Event(
                 id = eventToEdit?.id ?: "",
                 ownerId = userId,
@@ -110,12 +166,12 @@ fun CreateEventScreen(
                     address = eventLocation
                 ),
                 shoppingList = shoppingList.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                invitedUsers = EventSessionManager.invitedUsers.mapIndexed { index, uId ->
-                    val name = EventSessionManager.invitedUserNames.getOrNull(index) ?: ""
-                    com.example.forgetshyness.data.InvitedUser(userId = uId, name = name)
-                }
+                invitedUsers = finalInvitedUsers
             )
-            Log.d("CreateEventScreen", "Guardando evento: $eventToSave")
+
+            Log.d("CreateEventScreen", "SessionManager IDs: ${EventSessionManager.invitedUsers}")
+            Log.d("CreateEventScreen", "SessionManager Nombres: ${EventSessionManager.invitedUserNames}")
+            Log.d("CreateEventScreen", "Guardando evento con ${finalInvitedUsers.size} invitados: $eventToSave")
 
             if (eventToEdit == null) {
                 repository.createEvent(eventToSave)
@@ -147,7 +203,6 @@ fun CreateEventScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- Formulario ---
             FormSection(label = stringResource(R.string.event_name_label)) {
                 FormTextField(value = eventName, onValueChange = { eventName = it }, placeholder = stringResource(R.string.event_name_label))
             }
@@ -180,25 +235,23 @@ fun CreateEventScreen(
             FormSection(label = stringResource(R.string.event_guests_label)) {
                 Button(
                     onClick = {
-                        // --- SOLUCIÓN: Guardar estado actual en la sesión antes de navegar ---
                         EventSessionManager.eventName = eventName
                         EventSessionManager.eventDescription = eventDescription
                         EventSessionManager.eventDate = eventDate
                         EventSessionManager.eventLocation = eventLocation
                         EventSessionManager.shoppingList = shoppingList
 
-                        // Pasamos un evento temporal, su contenido no es crítico para la navegación
                         onInvitePlayersClick(Event(id = eventToEdit?.id ?: ""))
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C)),
                     modifier = Modifier.fillMaxWidth()
                 ) { Text(stringResource(R.string.button_add_players), color = Color.Black) }
 
-                if (EventSessionManager.invitedUserNames.isNotEmpty()) {
+                if (invitedNamesState.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(stringResource(R.string.event_invited_players_header), color = Color.White, fontWeight = FontWeight.SemiBold)
-                    // Usamos un Set para evitar visualmente los duplicados mientras el estado se estabiliza
-                    EventSessionManager.invitedUserNames.toSet().forEach {
+                    // ✅ Usar toList() para crear snapshot y forzar recomposición
+                    invitedNamesState.toList().toSet().forEach {
                         Text("• $it", color = Color.White.copy(alpha = 0.8f), modifier = Modifier.padding(start = 8.dp))
                     }
                 }
@@ -221,7 +274,6 @@ fun CreateEventScreen(
             }
         }
 
-        // Botón de volver flotante
         IconButton(
             onClick = onBackClick,
             modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
@@ -229,7 +281,7 @@ fun CreateEventScreen(
             Icon(
                 painter = painterResource(id = R.drawable.flecha_izquierda),
                 contentDescription = stringResource(R.string.content_desc_back),
-                tint = Color(0xFFFFCB3C)
+                tint = Color.Yellow
             )
         }
     }

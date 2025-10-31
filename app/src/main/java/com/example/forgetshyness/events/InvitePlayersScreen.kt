@@ -1,5 +1,6 @@
 package com.example.forgetshyness.events
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -98,17 +99,21 @@ fun InvitePlayersScreen(
 
             Button(
                 onClick = {
-                    // ----- CORRECCIÓN CLAVE -----
-                    // La única responsabilidad de esta pantalla es actualizar el SessionManager.
+                    // 1. Actualizar la lista de IDs en la sesión
                     EventSessionManager.invitedUsers.clear()
                     EventSessionManager.invitedUsers.addAll(selectedUsers)
 
+                    // 2. Reconstruir la lista de NOMBRES a partir de la lista de IDs actualizada
                     EventSessionManager.invitedUserNames.clear()
                     val selectedNames = allUsers
-                        .filter { it["id"] in selectedUsers }
+                        .filter { it["id"] in EventSessionManager.invitedUsers }
                         .mapNotNull { it["name"] }
                     EventSessionManager.invitedUserNames.addAll(selectedNames)
 
+                    // 3. Log de depuración para verificar el estado ANTES de volver
+                    Log.d("InvitePlayersScreen", "Actualizando SessionManager. IDs: ${EventSessionManager.invitedUsers}, Nombres: ${EventSessionManager.invitedUserNames}")
+
+                    // 4. Volver a la pantalla anterior
                     onInvitationsSent()
                 },
                 enabled = selectedUsers.isNotEmpty(),
