@@ -74,7 +74,7 @@ fun CreateEventScreen(
             EventSessionManager.shoppingList = shoppingList
 
             EventSessionManager.invitedUsers.clear()
-            EventSessionManager.invitedUserNames.clear()
+            /* EventSessionManager.invitedUserNames.clear() */
             EventSessionManager.invitedUsers.addAll(ev.invitedUsers.map { it.userId })
             EventSessionManager.invitedUserNames.addAll(ev.invitedUsers.map { it.name })
         }
@@ -87,6 +87,12 @@ fun CreateEventScreen(
             onLocationConsumed?.invoke()
         }
     }
+
+    // Mantener SessionManager actualizado si cambian valores locales
+    LaunchedEffect(eventName) { EventSessionManager.eventName = eventName }
+    LaunchedEffect(eventDescription) { EventSessionManager.eventDescription = eventDescription }
+    LaunchedEffect(shoppingList) { EventSessionManager.shoppingList = shoppingList }
+    LaunchedEffect(eventDate) { EventSessionManager.eventDate = eventDate } // garantiza persistencia al navegar
 
     val saveEvent: () -> Unit = {
         scope.launch {
@@ -162,7 +168,8 @@ fun CreateEventScreen(
             }
             FormSection(label = stringResource(R.string.event_location_label)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FormTextField(value = eventLocation, onValueChange = { eventLocation = it }, placeholder = stringResource(R.string.event_location_label), modifier = Modifier.weight(1f))
+                    FormTextField(value = eventLocation, onValueChange = { eventLocation = it
+                        EventSessionManager.eventLocation = it }, placeholder = stringResource(R.string.event_location_label), modifier = Modifier.weight(1f))
                     Button(
                         onClick = onOpenMapClick,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCB3C)),
