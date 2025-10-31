@@ -15,6 +15,8 @@ object EventSessionManager {
     var invitedUsers = mutableStateListOf<String>()
     var invitedUserNames = mutableStateListOf<String>()
     var currentUserId: String? = null
+    // ✅ Nuevo: Rastrear qué evento se está editando actualmente
+    var currentEditingEventId: String? = null
 
     fun clear() {
         eventName = ""
@@ -26,6 +28,7 @@ object EventSessionManager {
         shoppingList = ""
         invitedUsers.clear()
         invitedUserNames.clear()
+        currentEditingEventId = null
     }
 }
 
