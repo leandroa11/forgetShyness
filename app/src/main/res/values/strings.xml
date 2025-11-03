@@ -1,0 +1,116 @@
+<resources>
+    <string name="app_name">ForgetShyness</string>
+    <string name="slogan1">Olvida la timidez...</string>
+    <string name="slogan2">Recuerda la diversión</string>
+    <string name="description">Un toque de juego, una pizca de sabor y mucha conexión</string>
+    <string name="enter_button">Entrar a la experiencia</string>
+
+    <string name="google_maps_key" translatable="false">AIzaSyAVa8psYpBrk1nzytaoZyAHO6OGCjSkpSY</string>
+
+    <!-- WelcomoActivity -->
+    <string name="welcome_title">¡Bienvenido(a),</string>
+    <string name="welcome_image_desc">Brindis</string>
+    <string name="welcome_message">¡Es hora de socializar y romper el hielo!</string>
+    <string name="go_to_menu">Ir al Menú</string>
+
+    <!-- VerificationCodeActivity -->
+    <string name="error_missing_user_data">Error: Faltan datos del usuario.</string>
+    <string name="otp_simulation_sent">Simulación: OTP enviado correctamente</string>
+    <string name="otp_sent_to">Código enviado al %1$s</string>
+    <string name="otp_error_prefix">Error:</string>
+    <string name="background_desc">Fondo de pantalla</string>
+    <string name="back_button_desc">Atrás</string>
+    <string name="verification_title">Último toque antes del brindis</string>
+    <string name="verification_instructions">
+    Te hemos enviado un código de 6 dígitos para que compruebes que eres tú. Ingresa el código en los siguientes espacios.
+</string>
+    <string name="verification_success">¡Verificación exitosa!</string>
+    <string name="verification_error_code">Código incorrecto. Inténtalo de nuevo.</string>
+    <string name="verification_button_text">¡Que empiece la diversión!</string>
+    <string name="resend_prompt">¿No llegó el código?</string>
+    <string name="resend_button">Reenviar código</string>
+    <string name="resend_countdown">Reenviar en %1$ds</string>
+
+    <!-- MainActivity -->
+    <string name="error_only_numbers">Solo se admiten números.</string>
+    <string name="error_ten_digits">Debe tener 10 dígitos.</string>
+    <string name="phone_placeholder">Número de teléfono</string>
+    <string name="button_enter">Entrar</string>
+
+    <!-- HomeScreen -->
+    <string name="home_greeting">¡Hola, %1$s!\n¿Listo para romper el hielo?</string>
+
+    <!-- Tarjetas del menú principal -->
+    <string name="recipes_title">Recetas para la ocasión</string>
+    <string name="recipes_description">Mezcla la diversión,\nDescubre cocteles que le ponen un sabor único a tus planes.</string>
+
+    <string name="games_title">Juegos interactivos</string>
+    <string name="games_description">Pon a prueba tu ingenio.\nDinámicas y juegos para que las conversaciones no paren.</string>
+
+    <string name="events_title">Asistente de planificación</string>
+    <string name="events_description">Organiza la reunión.\nEncuentra licorerías y prepara tus eventos sin excusas.</string>
+
+    <!-- SelectLocationScreen -->
+    <string name="select_location_title">Seleccionar ubicación</string>
+    <string name="content_desc_back">Volver</string>
+    <string name="marker_title_selected_location">Ubicación seleccionada</string>
+    <string name="placeholder_search_location">Buscar ubicación...</string>
+    <string name="button_ok">OK</string>
+    <string name="error_location_no_address">Ubicación sin dirección</string>
+
+    <!-- EventListScreen -->
+    <string name="event_list_title">Asistente de planificación</string>
+    <string name="event_list_greeting">Hola, %1$s 👋</string>
+    <string name="event_list_no_events_title">Aún sin eventos 🎉</string>
+    <string name="event_list_no_events_subtitle">¡Empecemos la diversión!</string>
+    <string name="event_list_invitations_header">📩 Invitaciones recibidas</string>
+    <string name="event_list_my_events_header">🎊 Tus eventos</string>
+    <string name="event_list_create_event">Crear evento</string>
+
+    <!-- Event Cards -->
+    <string name="event_card_host">Anfitrión: %1$s</string>
+    <string name="event_card_location">Ubicación: %1$s</string>
+    <string name="event_card_guests">Invitados: %1$d</string>
+    <string name="invitation_card_title">Invitación: %1$s</string>
+    <string name="button_accept">Aceptar</string>
+    <string name="button_decline">Rechazar</string>
+
+    <!-- EventDetailScreen -->
+    <string name="event_detail_title">Detalles del evento</string>
+    <string name="content_desc_edit">Editar evento</string>
+    <string name="content_desc_delete">Eliminar evento</string>
+    <string name="content_desc_invite">Invitar jugadores</string>
+    <string name="event_detail_no_date">Sin fecha</string>
+    <string name="event_detail_organizer">Organizador: %1$s</string>
+    <string name="event_detail_date">Fecha: %1$s</string>
+    <string name="event_detail_description_header">Descripción</string>
+    <string name="event_detail_guests_header">Invitados</string>
+    <string name="event_detail_shopping_list_header">Lista de compras</string>
+
+    <!-- InvitePlayersScreen -->
+    <string name="invite_players_title">Invitar jugadores</string>
+    <string name="invite_players_subtitle">Selecciona los jugadores a invitar:</string>
+    <string name="button_send_invitations">Confirmar Selección (%d)</string>
+
+    <!-- CreateEventScreen -->
+    <string name="create_event_title">Crear un nuevo evento</string>
+    <string name="edit_event_title">Editar evento</string>
+    <string name="content_desc_save">Guardar</string>
+    <string name="event_name_label">Nombre del evento</string>
+    <string name="event_description_label">Descripción</string>
+    <string name="event_date_time_label">Fecha y hora</string>
+    <string name="content_desc_open_datepicker">Abrir fecha</string>
+    <string name="event_location_label">Ubicación</string>
+    <string name="button_open_map">Abrir mapa</string>
+    <string name="event_guests_label">Invitados</string>
+    <string name="button_add_players">+ Agregar jugadores</string>
+    <string name="event_invited_players_header">Jugadores invitados</string>
+    <string name="event_shopping_list_label">Lista de compras</string>
+    <string name="event_shopping_list_placeholder">P. ej: Hielo, Vasos, Limones...</string>
+    <string name="button_save">Guardar Evento</string>
+    <string name="button_update">Actualizar Evento</string>
+
+    <!-- ChatBot -->
+    <string name="generative_api_key" translatable="false">AIzaSyCl29IYAjYQJ0966dYDyqSi-iwAw5gHrUY</string>
+
+</resources>
