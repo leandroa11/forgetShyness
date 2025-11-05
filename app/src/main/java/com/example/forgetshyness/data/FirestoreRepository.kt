@@ -40,7 +40,7 @@ class FirestoreRepository {
             if (!snapshot.exists()) {
                 Pair(false, "El usuario no existe en la base de datos.")
             } else {
-                userRef.update("active", true).await()
+                userRef.update("state", true).await()
                 Pair(true, "Usuario activado correctamente.")
             }
         } catch (e: Exception) {
