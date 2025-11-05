@@ -66,10 +66,10 @@ fun HomeScreen(
                 modifier = Modifier.padding(bottom = 40.dp)
             )
 
-            // Menú principal
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+            // Menú principal en vertical
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp), // Espacio uniforme entre elementos
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 MenuCard(
@@ -80,8 +80,6 @@ fun HomeScreen(
                     onClick = onNavigateToRecipes
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
-
                 MenuCard(
                     backgroundColor = Color(0xFFF68C3F),
                     icon = R.drawable.dado,
@@ -89,8 +87,6 @@ fun HomeScreen(
                     description = stringResource(R.string.games_description),
                     onClick = onNavigateToGames
                 )
-
-                Spacer(modifier = Modifier.width(12.dp))
 
                 MenuCard(
                     backgroundColor = Color(0xFFB06B9A),
@@ -112,39 +108,34 @@ fun MenuCard(
     description: String,
     onClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
-            .width(110.dp)
+            .fillMaxWidth() // Ocupa todo el ancho
             .clickable(onClick = onClick)
             .clip(RoundedCornerShape(16.dp))
             .background(backgroundColor)
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = painterResource(id = icon),
             contentDescription = title,
             modifier = Modifier.size(40.dp)
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = title,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = description,
-            color = Color.White.copy(alpha = 0.9f),
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center
-        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(
+                text = title,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp, // Un poco más grande para mejorar legibilidad
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = description,
+                color = Color.White.copy(alpha = 0.9f),
+                fontSize = 14.sp, // Un poco más grande
+            )
+        }
     }
 }
-
-
-
-
-
