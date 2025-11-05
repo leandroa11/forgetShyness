@@ -111,6 +111,6 @@
     <string name="button_update">Actualizar Evento</string>
 
     <!-- ChatBot -->
-    <string name="generative_api_key" translatable="false">AIzaSyCl29IYAjYQJ0966dYDyqSi-iwAw5gHrUY</string>
+    <string name="generative_api_key" translatable="false">AIzaSyBaMTVGePhfU5NNm9CHJz5vtLmIH7u65ow</string>
 
 </resources>

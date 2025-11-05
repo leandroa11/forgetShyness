@@ -1,5 +1,6 @@
 package com.example.forgetshyness.recipes
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -93,27 +94,51 @@ fun ChatScreen(
                 onClick = {
                     val text = inputText.trim()
                     if (text.isNotEmpty()) {
+                        if (chatId.isBlank()) {
+                            Log.e("ChatScreen", "⚠️ ChatID vacío: no se puede guardar mensaje")
+                            return@Button
+                        }
+
                         scope.launch {
                             loading = true
+                            try {
+                                // 1️⃣ Guardar mensaje del usuario
+                                val userMsg = MessageModel(sender = "user", text = text)
+                                repository.saveMessage(chatId, userMsg)
 
-                            // 1️⃣ Guardar mensaje del usuario
-                            val userMsg = MessageModel(sender = "user", text = text)
-                            repository.saveMessage(chatId, userMsg)
+                                // 2️⃣ Obtener respuesta del bot
+                                val botReply = repository.sendMessageToGemini(text)
 
-                            // 2️⃣ Generar respuesta del bot usando Gemini
-                            val botReply = repository.sendMessageToGemini(text)
+                                // 3️⃣ Guardar mensaje del bot
+                                val botMsg = MessageModel(sender = "bot", text = botReply)
+                                repository.saveMessage(chatId, botMsg)
 
-                            // 3️⃣ Guardar mensaje del bot
-                            val botMsg = MessageModel(sender = "bot", text = botReply)
-                            repository.saveMessage(chatId, botMsg)
+                                // 4️⃣ Actualizar mensajes en pantalla
+                                messages = repository.getMessages(chatId)
+                                onMessagesChanged(messages)
+                                inputText = ""
 
-                            // 4️⃣ Actualizar mensajes en pantalla
-                            messages = repository.getMessages(chatId)
-                            onMessagesChanged(messages)
+                            } catch (e: Exception) {
+                                // ⚠️ Aquí mostramos un mensaje simple al usuario
+                                val errorMsg = when {
+                                    e.message?.contains("403") == true ->
+                                        "Parece que hay un problema con la conexión al servicio. Intenta más tarde."
+                                    e.message?.contains("503") == true ->
+                                        "El servidor está ocupado. Inténtalo nuevamente."
+                                    else ->
+                                        "Algo no salió bien. Intenta más tarde."
+                                }
 
-                            inputText = ""
-                            loading = false
+                                // Agregar el error como mensaje del bot visible al usuario
+                                val errorResponse = MessageModel(sender = "bot", text = errorMsg)
+                                repository.saveMessage(chatId, errorResponse)
+                                messages = repository.getMessages(chatId)
+
+                            } finally {
+                                loading = false
+                            }
                         }
+
                     }
                 },
                 modifier = Modifier.padding(start = 8.dp)

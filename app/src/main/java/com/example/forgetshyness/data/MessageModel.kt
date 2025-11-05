@@ -5,6 +5,5 @@ data class MessageModel(
     var text: String = "",
     var timestamp: Long = System.currentTimeMillis()
 ) {
-    // 🔹 Constructor vacío requerido por Firestore
     constructor() : this("", "", 0L)
 }

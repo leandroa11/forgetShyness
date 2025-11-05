@@ -28,7 +28,7 @@ fun ChatMasterScreen(
     var selectedChatId by remember { mutableStateOf<String?>(null) }
     var messagesForSelected by remember { mutableStateOf<List<MessageModel>>(emptyList()) }
 
-    val scope = rememberCoroutineScope() // ✅ Nuevo
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(userId) {
         loading = true
@@ -49,8 +49,8 @@ fun ChatMasterScreen(
                     chats = chats,
                     loading = loading,
                     onCreateChat = {
-                        scope.launch { // ✅ en lugar de LaunchedEffect
-                            val newId = repository.createNewChat(userId,userName)
+                        scope.launch {
+                            val newId = repository.createNewChat(userId, userName)
                             chats = repository.getChatsForUser(userId)
                             selectedChatId = newId
                             messagesForSelected = repository.getMessages(newId)
@@ -58,11 +58,13 @@ fun ChatMasterScreen(
                     },
                     onSelectChat = { chatId ->
                         selectedChatId = chatId
-                        scope.launch { // ✅ igual aquí
+                        scope.launch {
                             messagesForSelected = repository.getMessages(chatId)
                         }
                     },
-                    modifier = Modifier.weight(0.36f)
+                    modifier = Modifier.weight(0.36f),
+                    repository = repository, // ✅ agregado
+                    userId = userId          // ✅ agregado
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -83,13 +85,15 @@ fun ChatMasterScreen(
                 chats = chats,
                 loading = loading,
                 onCreateChat = {
-                    scope.launch { // ✅
+                    scope.launch {
                         val newId = repository.createNewChat(userId, userName)
                         onOpenChatExternally(newId)
                     }
                 },
                 onSelectChat = { chatId -> onOpenChatExternally(chatId) },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                repository = repository, // ✅ agregado
+                userId = userId          // ✅ agregado
             )
         }
     }

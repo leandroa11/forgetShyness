@@ -84,6 +84,8 @@ dependencies {
     // --- Chat ---
 
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    // 👇 Fuerza Firestore a una versión estable compatible con Android 11
+    implementation("com.google.firebase:firebase-firestore:25.1.1")
 
     // --- Tests ---
     testImplementation(libs.junit)

@@ -5,8 +5,8 @@ data class Chat(
     var userId: String = "",
     var userName: String = "",
     var lastMessage: String = "",
+    var lastSender: String = "",
     var timestamp: Long = System.currentTimeMillis()
 ) {
-    // 🔹 Constructor vacío requerido por Firestore
-    constructor() : this("", "", "", "", 0L)
+    constructor() : this("", "", "", "", "", 0L)
 }
