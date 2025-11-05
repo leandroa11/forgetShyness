@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.compose.ui.res.stringResource
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,10 +42,8 @@ class VerificationCodeActivity : ComponentActivity() {
 
         val userId = intent.getStringExtra("USER_ID")
         val userName = intent.getStringExtra("USER_NAME")
-        // OJO: El número de teléfono debe incluir el prefijo del país, ej: "+521234567890"
         val userPhone = intent.getStringExtra("USER_PHONE")
 
-        // Comprobación de seguridad: si no hay datos, no se puede continuar
         if (userId == null || userName == null || userPhone == null) {
             Toast.makeText(this, getString(R.string.error_missing_user_data), Toast.LENGTH_LONG).show()
             finish()
@@ -50,7 +51,6 @@ class VerificationCodeActivity : ComponentActivity() {
         }
 
         setContent {
-            // Inyectamos las dependencias y los datos a la pantalla principal
             VerificationScreen(
                 userId = userId,
                 userName = userName,
@@ -71,7 +71,6 @@ fun VerificationScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    // Instancias de nuestros gestores de lógica
     val otpManager = remember { OtpManager(Firebase.auth) }
     val firestoreRepository = remember { FirestoreRepository() }
 
@@ -93,27 +92,40 @@ fun VerificationScreen(
         }
     }
 
-    // Simulación para desarrollo
+    // Función para enviar el código OTP
     fun sendOtp() {
+        // En modo desarrollo, simulamos el envío para no gastar cuota de SMS
         if (AppConfig.IS_DEVELOPMENT_MODE) {
             Toast.makeText(context, context.getString(R.string.otp_simulation_sent), Toast.LENGTH_SHORT).show()
             startResendTimer()
         } else {
-            startResendTimer()
+            // En modo producción, enviamos el SMS real
+            startResendTimer() // Inicia el contador inmediatamente
+            isLoading = true   // Bloquea la UI mientras se envía
             otpManager.sendOtp(
-                phoneNumber = "+57$userPhone",
+                // 💡 Asegura que el formato del número sea E.164 (+códigoPaísNúmero)
+                phoneNumber = if (userPhone.startsWith("+")) userPhone else "+57$userPhone",
                 activity = activity,
                 onCodeSent = {
+                    isLoading = false // Desbloquea la UI
                     Toast.makeText(context, context.getString(R.string.otp_sent_to, userPhone), Toast.LENGTH_SHORT).show()
                 },
                 onVerificationFailed = { exception ->
-                    android.util.Log.e("OTP_ERROR", "Error OTP", exception)
+                    isLoading = false // Desbloquea la UI en caso de error
+                    // 💡 Log detallado para depuración
+                    Log.e("OTP_ERROR", "Error al enviar OTP a $userPhone", exception)
                     Toast.makeText(context, context.getString(R.string.otp_error_prefix) + " ${exception.message}", Toast.LENGTH_LONG).show()
-                    isResendEnabled = true
+                    isResendEnabled = true // Permite reintentar inmediatamente si falló
                 }
             )
         }
     }
+
+    // 💡 Envía el código OTP automáticamente al entrar en la pantalla
+    LaunchedEffect(Unit) {
+        sendOtp()
+    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -142,7 +154,7 @@ fun VerificationScreen(
 
             Text(text = stringResource(R.string.verification_title), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = stringResource(R.string.verification_instructions), fontSize = 14.sp, color = Color.White, textAlign = TextAlign.Center)
+            Text(text = stringResource(R.string.verification_instructions, userPhone), fontSize = 14.sp, color = Color.White, textAlign = TextAlign.Center)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -153,11 +165,15 @@ fun VerificationScreen(
                         onValueChange = { input -> if (input.length <= 1) code = code.toMutableList().also { it[index] = input } },
                         modifier = Modifier.width(48.dp).height(56.dp),
                         singleLine = true,
+                        // 💡 Deshabilita los campos mientras se verifica
+                        enabled = !isLoading,
                         shape = RoundedCornerShape(8.dp),
                         textStyle = LocalTextStyle.current.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = Color.White, unfocusedContainerColor = Color.White, focusedBorderColor = Color.White,
-                            unfocusedBorderColor = Color.White, focusedTextColor = Color.Black, unfocusedTextColor = Color.Black, cursorColor = Color.Black
+                            unfocusedBorderColor = Color.White, focusedTextColor = Color.Black, unfocusedTextColor = Color.Black, cursorColor = Color.Black,
+                            // 💡 Color para estado deshabilitado
+                            disabledContainerColor = Color.Gray.copy(alpha = 0.2f)
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
@@ -173,11 +189,15 @@ fun VerificationScreen(
                         isLoading = true
                         otpManager.verifyOtp(
                             code = fullCode,
-                            onSuccess = { // El UID de Firebase no se usa aquí, pero confirma el éxito
+                            onSuccess = { // El código es correcto. Ahora actualizamos la DB.
                                 coroutineScope.launch {
+                                    // 💡 Llama a la función para cambiar el estado del usuario en Firestore
                                     val (activationSuccess, activationMessage) = firestoreRepository.activateUser(userId)
+
                                     if (activationSuccess) {
+                                        // ✅ ÉXITO: El usuario está activado en Firestore
                                         Toast.makeText(context, context.getString(R.string.verification_success), Toast.LENGTH_SHORT).show()
+                                        // Navega a la pantalla de bienvenida
                                         val intent = Intent(context, WelcomeActivity::class.java).apply {
                                             putExtra("USER_NAME", userName)
                                             putExtra("USER_ID", userId)
@@ -185,16 +205,21 @@ fun VerificationScreen(
                                         context.startActivity(intent)
                                         activity.finishAffinity() // Cierra esta y las actividades anteriores
                                     } else {
+                                        // ❌ FALLO: No se pudo actualizar en Firestore
                                         Toast.makeText(context, activationMessage, Toast.LENGTH_LONG).show()
+                                        isLoading = false // Permite al usuario reintentar
                                     }
-                                    isLoading = false
                                 }
                             },
                             onError = { exception ->
+                                // ❌ FALLO: El código OTP era incorrecto o expiró
+                                Log.e("OTP_VERIFY_ERROR", "Código de verificación incorrecto", exception)
                                 Toast.makeText(context, context.getString(R.string.verification_error_code), Toast.LENGTH_LONG).show()
                                 isLoading = false
                             }
                         )
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.verification_code_length_error), Toast.LENGTH_SHORT).show()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107), contentColor = Color.Black),
