@@ -24,6 +24,7 @@
     <string name="verification_instructions">
     Te hemos enviado un código de 6 dígitos para que compruebes que eres tú. Ingresa el código en los siguientes espacios.
 </string>
+    <string name="verification_code_length_error">Hubo un error en la verificación</string>
     <string name="verification_success">¡Verificación exitosa!</string>
     <string name="verification_error_code">Código incorrecto. Inténtalo de nuevo.</string>
     <string name="verification_button_text">¡Que empiece la diversión!</string>
