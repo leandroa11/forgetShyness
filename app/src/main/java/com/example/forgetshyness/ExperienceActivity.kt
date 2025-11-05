@@ -1,11 +1,12 @@
 package com.example.forgetshyness
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -25,59 +26,73 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.User
+import com.example.forgetshyness.R
+import com.example.forgetshyness.utils.Constants
 import kotlinx.coroutines.launch
+import java.util.regex.Pattern
 
 class ExperienceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val initialPhone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER) ?: ""
         setContent {
-            ExperienceFormScreen()
+            ExperienceFormScreen(initialPhone)
         }
     }
 }
 
-// --- Funciones de Validación ---
-private fun validateName(name: String): String {
-    if (name.length < 3) return "Mínimo 3 caracteres."
-    if (name.length > 40) return "Máximo 40 caracteres."
-    if (!name.matches(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$"))) return "No se admiten caracteres especiales o números."
+// --- Funciones de Validación (No Composable) ---
+private fun validateName(name: String, context: Context): String {
+    if (name.length < 3) return context.getString(R.string.validation_name_min_length)
+    if (name.length > 40) return context.getString(R.string.validation_name_max_length)
+    if (!name.matches(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$"))) return context.getString(R.string.validation_name_invalid_chars)
     return ""
 }
 
-private fun validatePhone(phone: String): String {
-    if (!phone.matches(Regex("^[0-9]+$"))) return "Solo se admiten números."
-    if (phone.length != 10) return "Debe tener 10 dígitos."
+private fun validatePhone(phone: String, context: Context): String {
+    if (!phone.matches(Regex("^[0-9]+$"))) return context.getString(R.string.validation_phone_only_numbers)
+    if (phone.length != 10) return context.getString(R.string.validation_phone_ten_digits)
     return ""
 }
 
-private fun validateAge(age: String): String {
+private fun validateAge(age: String, context: Context): String {
     val ageNum = age.toIntOrNull()
-    if (ageNum == null) return "Solo se admiten números."
-    if (ageNum < 18) return "Debes tener al menos 18 años."
+    if (ageNum == null) return context.getString(R.string.validation_age_only_numbers)
+    if (ageNum < 18) return context.getString(R.string.validation_age_min_age)
     return ""
 }
 
-private fun validateEmail(email: String): String {
-    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) return "Formato de correo no válido."
+private fun validateEmail(email: String, context: Context): String {
+    val emailPattern = Pattern.compile(
+        "[a-zA-Z0-9\\+\\_\\%\\-\\+]{1,256}" +
+                "\\@" +
+                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+                "(" +
+                "\\." +
+                "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+                ")+"
+    )
+    if (!emailPattern.matcher(email).matches()) return context.getString(R.string.validation_email_invalid)
     return ""
 }
 
 
 @Composable
-fun ExperienceFormScreen() {
+fun ExperienceFormScreen(initialPhone: String) {
     val context = LocalContext.current
-    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val activity = LocalActivity.current
     val coroutineScope = rememberCoroutineScope()
     val firestoreRepository = remember { FirestoreRepository() }
 
     var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf(initialPhone) }
     var age by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
 
@@ -90,10 +105,10 @@ fun ExperienceFormScreen() {
 
     val isFormValid by remember {
         derivedStateOf {
-            validateName(name).isEmpty() &&
-            validatePhone(phone).isEmpty() &&
-            validateAge(age).isEmpty() &&
-            validateEmail(email).isEmpty()
+            validateName(name, context).isEmpty() &&
+                    validatePhone(phone, context).isEmpty() &&
+                    validateAge(age, context).isEmpty() &&
+                    validateEmail(email, context).isEmpty()
         }
     }
 
@@ -114,16 +129,16 @@ fun ExperienceFormScreen() {
         ) {
             Spacer(Modifier.height(40.dp))
 
-            Text("Antes de brindar...", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text("Cuéntanos quien eres", fontSize = 22.sp, color = Color.White)
+            Text(stringResource(R.string.experience_title), fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(stringResource(R.string.experience_subtitle), fontSize = 22.sp, color = Color.White)
 
             Spacer(Modifier.height(32.dp))
 
             // --- Campos del Formulario ---
             FormField(
                 value = name,
-                onValueChange = { name = it; nameError = validateName(it) },
-                label = "Nombre Completo",
+                onValueChange = { name = it; nameError = validateName(it, context) },
+                label = stringResource(R.string.experience_name_label),
                 error = nameError,
                 icon = R.drawable.coctel_1,
                 enabled = !isLoading
@@ -131,8 +146,8 @@ fun ExperienceFormScreen() {
 
             FormField(
                 value = phone,
-                onValueChange = { phone = it; phoneError = validatePhone(it) },
-                label = "Teléfono",
+                onValueChange = { phone = it; phoneError = validatePhone(it, context) },
+                label = stringResource(R.string.experience_phone_label),
                 error = phoneError,
                 icon = R.drawable.telefono,
                 keyboardType = KeyboardType.Phone,
@@ -141,8 +156,8 @@ fun ExperienceFormScreen() {
 
             FormField(
                 value = age,
-                onValueChange = { age = it; ageError = validateAge(it) },
-                label = "Edad",
+                onValueChange = { age = it; ageError = validateAge(it, context) },
+                label = stringResource(R.string.experience_age_label),
                 error = ageError,
                 icon = R.drawable.calendario,
                 keyboardType = KeyboardType.Number,
@@ -151,8 +166,8 @@ fun ExperienceFormScreen() {
 
             FormField(
                 value = email,
-                onValueChange = { email = it; emailError = validateEmail(it) },
-                label = "Correo",
+                onValueChange = { email = it; emailError = validateEmail(it, context) },
+                label = stringResource(R.string.experience_email_label),
                 error = emailError,
                 icon = R.drawable.correo,
                 keyboardType = KeyboardType.Email,
@@ -186,7 +201,7 @@ fun ExperienceFormScreen() {
                             }
                             context.startActivity(intent)
                         }
-                        
+
                         isLoading = false
                     }
                 },
@@ -210,7 +225,7 @@ fun ExperienceFormScreen() {
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("¡Listo para Mezclarme!", color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.experience_submit_button), color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -218,15 +233,15 @@ fun ExperienceFormScreen() {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { backDispatcher?.onBackPressed() }
+                modifier = Modifier.clickable { activity?.finish() }
             ) {
                 Image(
                     painter = painterResource(R.drawable.flecha_izquierda),
-                    contentDescription = "Volver atrás",
+                    contentDescription = stringResource(R.string.experience_back_button_desc),
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(6.dp))
-                Text("¿Aún eres muy tímido?", color = Color.White)
+                Text(stringResource(R.string.experience_back_button_prompt), color = Color.White)
             }
         }
     }
