@@ -59,14 +59,33 @@ cd forget-shyness
 
 ### 3. Configuración de Firebase
 
-La aplicación depende de Firebase para la autenticación y la base de datos.
+La aplicación depende de Firebase para la autenticación y la base de datos. Es crucial seguir el orden correcto para que la autenticación por OTP funcione.
 
-1.  Ve a la [**Consola de Firebase**](https://console.firebase.google.com/) y crea un nuevo proyecto.
-2.  Añade una nueva aplicación de Android con el nombre de paquete: `com.example.forgetshyness`.
-3.  Sigue los pasos para descargar el archivo `google-services.json`.
-4.  **Copia el archivo `google-services.json`** en el directorio `app/` de tu proyecto en Android Studio.
-5.  En la consola de Firebase, ve a la sección **Authentication** > **Sign-in method** y habilita el proveedor **Teléfono**.
-6.  Ve a la sección **Firestore Database**, crea una base de datos y configúrala en modo de producción (puedes ajustar las reglas de seguridad más tarde).
+1.  **Genera la Clave SHA-1 de Depuración**: Antes de registrar la app en Firebase, necesitas la "huella digital" de tu entorno de desarrollo.
+    -   Abre una terminal en la raíz de tu proyecto de Android Studio.
+    -   Ejecuta el comando:
+        ```bash
+        ./gradlew signingReport
+        ```
+    -   Busca y copia la clave **SHA-1** para la variante `debug`.
+
+2.  **Crea y Configura el Proyecto en Firebase**:
+    -   Ve a la [**Consola de Firebase**](https://console.firebase.google.com/) y crea un nuevo proyecto.
+    -   Dentro del proyecto, haz clic en el icono de Android para añadir una nueva aplicación.
+    -   Ingresa el nombre de paquete: `com.example.forgetshyness`.
+    -   **Pega la clave SHA-1** que copiaste en el campo "Debug signing certificate SHA-1".
+    -   Completa el registro y **descarga el archivo `google-services.json`**.
+
+3.  **Añade el Archivo al Proyecto**:
+    -   Copia el archivo `google-services.json` que acabas de descargar al directorio `app/` de tu proyecto en Android Studio.
+
+4.  **Añade Claves Adicionales (Opcional pero recomendado)**:
+    -   Vuelve a la **Consola de Firebase** > **Configuración del Proyecto** (⚙️).
+    -   En la sección "SHA certificate fingerprints", añade la clave **SHA-256** que también obtuviste del `signingReport`. Esto es una buena práctica para asegurar la compatibilidad con más servicios de Google.
+
+5.  **Habilita los Servicios de Firebase**:
+    -   En la consola, ve a **Authentication** > **Sign-in method** y habilita el proveedor **Teléfono**.
+    -   Ve a **Firestore Database**, crea una base de datos y configúrala en modo de producción (puedes ajustar las reglas de seguridad más tarde).
 
 ### 4. Configuración de Claves de API
 
