@@ -2,7 +2,6 @@ package com.example.forgetshyness.data
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import com.example.forgetshyness.R
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,7 +17,7 @@ class ChatRepository(private val context: Context) {
     private val model by lazy {
         val apiKey = context.getString(R.string.generative_api_key)
         GenerativeModel(
-            modelName = "models/gemini-2.5-flash",
+            modelName = "gemini-1.5-flash", // CORREGIDO: Nombre de modelo válido
             apiKey = apiKey
         )
     }
@@ -79,16 +78,19 @@ class ChatRepository(private val context: Context) {
             Log.d("GeminiChat", "Enviando prompt a Gemini: $prompt")
 
             val response = model.generateContent(
+                // CORREGIDO: Prompt más explícito para evitar Markdown
                 """
                 Eres un experto bartender y solo debes responder sobre cocteles, recetas, tragos o temas relacionados con bebidas.
                 Si el usuario pregunta algo fuera de tema, responde:
                 "Solo puedo hablar sobre cocteles, bebidas y mixología 🍸".
+                No uses formato Markdown (negritas con **, cursivas, etc). Responde siempre con texto plano.
 
                 Pregunta del usuario: $prompt
                 """.trimIndent()
             )
 
-            val output = response.text ?: "Sin respuesta del modelo"
+            // CORREGIDO: Limpieza de la respuesta como medida de seguridad
+            val output = (response.text ?: "Sin respuesta del modelo").replace("*", "")
             Log.d("GeminiChat", "Respuesta de Gemini: $output")
             output
 
@@ -98,7 +100,6 @@ class ChatRepository(private val context: Context) {
         }
     }
 
-    // 🔹 Guardar mensaje correctamente en la subcolección "messages"
     // 🔹 Guardar mensaje correctamente en la subcolección "messages"
     suspend fun saveMessage(chatId: String, message: MessageModel) = withContext(Dispatchers.IO) {
         try {
@@ -144,4 +145,3 @@ class ChatRepository(private val context: Context) {
         }
     }
 }
-

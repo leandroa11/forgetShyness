@@ -1,7 +1,6 @@
 package com.example.forgetshyness.games
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,15 +15,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.forgetshyness.MenuCard
 import com.example.forgetshyness.R
 
 
@@ -37,18 +35,10 @@ fun GamesMenuScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFB3405F),
-                        Color(0xFFDD6D47)
-                    )
-                )
-            )
     ) {
         // Fondo de burbujas (imagen decorativa)
         Image(
-            painter = painterResource(id = R.drawable.fondo_burbujas_2),
+            painter = painterResource(id = R.drawable.fondo_burbujas_3),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
@@ -63,8 +53,8 @@ fun GamesMenuScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.flecha_izquierda),
-                contentDescription = "Volver",
-                tint = Color(0xFFFFCB3C),
+                contentDescription = stringResource(R.string.content_desc_back),
+                tint = Color.Yellow,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -79,7 +69,7 @@ fun GamesMenuScreen(
         ) {
             // Título principal
             Text(
-                text = "Juegos\nInteractivos",
+                text = stringResource(R.string.games_menu_title),
                 color = Color.White,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Medium,
@@ -98,16 +88,16 @@ fun GamesMenuScreen(
                 GameCard(
                     backgroundColor = Color(0xFFD24B6C),
                     icon = R.drawable.ruleta,
-                    title = "Ruleta Picante",
-                    description = "Gira la ruleta y descubre retos atrevidos que subirán la temperatura de tu noche",
+                    title = stringResource(R.string.games_menu_roulette_title),
+                    description = stringResource(R.string.games_menu_roulette_desc),
                     onClick = { onChooseGame("ruleta") }
                 )
 
                 GameCard(
                     backgroundColor = Color(0xFF9A6CD6),
                     icon = R.drawable.verdadr_reto,
-                    title = "Verdad o Reto",
-                    description = "Escoge sabiamente ¿Qué prefieres? ¿Confesar tu verdad más íntima o aceptar un reto picante? ¡Listo para romper el hielo?",
+                    title = stringResource(R.string.games_menu_truth_or_dare_title),
+                    description = stringResource(R.string.games_menu_truth_or_dare_desc),
                     onClick = { onChooseGame("verdad_o_reto") }
                 )
             }
@@ -127,7 +117,7 @@ fun GamesMenuScreen(
                 )
             ) {
                 Text(
-                    text = "Añadir Participantes...",
+                    text = stringResource(R.string.games_menu_add_participants_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )

@@ -16,10 +16,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.forgetshyness.R
 import com.example.forgetshyness.data.Challenge
 
 @Composable
@@ -33,7 +35,6 @@ fun TruthOrDareScreen(
     var selectedChallenge by remember { mutableStateOf<Challenge?>(null) }
     var currentIndex by remember { mutableStateOf(0) }
 
-    // ✅ Evitar crash si aún no hay datos
     if (participants.isEmpty() || allChallenges.isEmpty()) {
         Box(
             modifier = Modifier
@@ -49,7 +50,7 @@ fun TruthOrDareScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Cargando jugadores...",
+                text = stringResource(R.string.truth_or_dare_loading),
                 color = Color.White,
                 fontSize = 18.sp
             )
@@ -69,15 +70,13 @@ fun TruthOrDareScreen(
                 )
             )
     ) {
-        // Fondo decorativo (burbujas)
         Image(
-            painter = painterResource(id = com.example.forgetshyness.R.drawable.fondo_burbujas_3),
+            painter = painterResource(id = R.drawable.fondo_burbujas_3),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
         )
 
-        // Flecha para volver
         IconButton(
             onClick = onBackClick,
             modifier = Modifier
@@ -85,8 +84,8 @@ fun TruthOrDareScreen(
                 .padding(16.dp)
         ) {
             Icon(
-                painter = painterResource(id = com.example.forgetshyness.R.drawable.flecha_izquierda),
-                contentDescription = "Volver",
+                painter = painterResource(id = R.drawable.flecha_izquierda),
+                contentDescription = stringResource(R.string.content_desc_back),
                 tint = Color(0xFFFFCB3C),
                 modifier = Modifier.size(28.dp)
             )
@@ -99,9 +98,8 @@ fun TruthOrDareScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // Título principal
             Text(
-                text = "Verdad o Reto",
+                text = stringResource(R.string.truth_or_dare_title),
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
@@ -109,19 +107,17 @@ fun TruthOrDareScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Ícono central
             Icon(
-                painter = painterResource(id = com.example.forgetshyness.R.drawable.diblo_angel), // cambia por tu recurso
-                contentDescription = null,
+                painter = painterResource(id = R.drawable.diblo_angel),
+                contentDescription = stringResource(R.string.content_desc_angel_devil_icon),
                 tint = Color.Black,
                 modifier = Modifier.size(120.dp)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Texto de descripción
             Text(
-                text = "¿Confesar tus secretos o aceptar un reto picante?",
+                text = stringResource(R.string.truth_or_dare_subtitle),
                 color = Color.White,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -129,9 +125,8 @@ fun TruthOrDareScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Nombre del participante actual
             Text(
-                text = "${participants[currentIndex]} ¿Qué eliges?",
+                text = stringResource(R.string.truth_or_dare_turn_prompt, participants[currentIndex]),
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -140,7 +135,6 @@ fun TruthOrDareScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botones principales
             Button(
                 onClick = {
                     val verdadList = allChallenges.filter { it.type == "verdad" }
@@ -153,7 +147,7 @@ fun TruthOrDareScreen(
                     .height(48.dp)
             ) {
                 Text(
-                    text = "Elijo verdad 😇",
+                    text = stringResource(R.string.truth_or_dare_button_truth),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold
                 )
@@ -173,7 +167,7 @@ fun TruthOrDareScreen(
                     .height(48.dp)
             ) {
                 Text(
-                    text = "Elijo reto 😈",
+                    text = stringResource(R.string.truth_or_dare_button_dare),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold
                 )
@@ -192,13 +186,12 @@ fun TruthOrDareScreen(
                     .height(48.dp)
             ) {
                 Text(
-                    text = "Que sea aleatorio 🔀",
+                    text = stringResource(R.string.truth_or_dare_button_random),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            // Resultado del desafío elegido
             selectedChallenge?.let { challenge ->
                 Spacer(modifier = Modifier.height(32.dp))
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -222,7 +215,7 @@ fun TruthOrDareScreen(
                             .height(48.dp)
                     ) {
                         Text(
-                            text = "Continuar",
+                            text = stringResource(R.string.truth_or_dare_button_continue),
                             color = Color(0xFF6C3905),
                             fontWeight = FontWeight.Bold
                         )
@@ -232,5 +225,7 @@ fun TruthOrDareScreen(
         }
     }
 }
+
+
 
 

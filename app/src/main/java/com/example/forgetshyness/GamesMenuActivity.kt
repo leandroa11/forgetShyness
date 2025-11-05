@@ -11,12 +11,10 @@ class GamesMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // ✅ Recuperamos correctamente los valores con las constantes
         val userName = intent.getStringExtra(Constants.KEY_USER_NAME) ?: ""
         val userId = intent.getStringExtra(Constants.KEY_USER_ID) ?: ""
         val sessionId = intent.getStringExtra(Constants.KEY_SESSION_ID) ?: ""
 
-        // ✅ Validamos que vengan todos los datos
         if (userId.isBlank() || sessionId.isBlank()) {
             finish()
             return

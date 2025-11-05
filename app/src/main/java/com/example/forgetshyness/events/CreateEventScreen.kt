@@ -126,7 +126,7 @@ fun CreateEventScreen(
             Log.d("CreateEventScreen", "IDs en SessionManager: ${EventSessionManager.invitedUsers.toList()}")
             Log.d("CreateEventScreen", "Nombres en SessionManager: ${EventSessionManager.invitedUserNames.toList()}")
 
-            // ✅ FIX: Construir correctamente la lista sincronizada de invitados
+
             val finalInvitedUsers = if (eventToEdit != null) {
                 // Crear mapa de usuarios originales para preservar el status
                 val originalGuests = eventToEdit.invitedUsers.associateBy { it.userId }
@@ -250,7 +250,6 @@ fun CreateEventScreen(
                 if (invitedNamesState.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(stringResource(R.string.event_invited_players_header), color = Color.White, fontWeight = FontWeight.SemiBold)
-                    // ✅ Usar toList() para crear snapshot y forzar recomposición
                     invitedNamesState.toList().toSet().forEach {
                         Text("• $it", color = Color.White.copy(alpha = 0.8f), modifier = Modifier.padding(start = 8.dp))
                     }

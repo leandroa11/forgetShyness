@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
                             val user = firestoreRepository.getUserByPhone(phoneNumber)
                             isLoading = false
 
-                            val intent = if (user != null) {
+                            val intent = if (user != null && user.state) {
                                 Intent(this@MainActivity, MenuActivity::class.java).apply {
                                     putExtra(Constants.KEY_USER_NAME, user.name)
                                     putExtra(Constants.KEY_USER_ID, user.id)

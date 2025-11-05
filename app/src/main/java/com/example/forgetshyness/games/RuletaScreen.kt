@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
@@ -48,12 +49,10 @@ fun RuletaScreen(
     val animatedRotation = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
 
-    // Mostrar máximo 6 retos (como segmentos fijos)
     val visibleChallenges = remember(challenges) {
         if (challenges.size > 6) challenges.shuffled().take(6) else challenges
     }
 
-    // 🎨 Colores vivos tipo neón
     val segmentColors = listOf(
         Color(0xFFFF007F),
         Color(0xFFFFA500),
@@ -63,7 +62,6 @@ fun RuletaScreen(
         Color(0xFFBA55D3)
     )
 
-    // Íconos (asegúrate de tenerlos en drawable)
     val segmentIcons = listOf(
         ImageBitmap.imageResource(id = R.drawable.beso),
         ImageBitmap.imageResource(id = R.drawable.reto_doble),
@@ -73,24 +71,17 @@ fun RuletaScreen(
         ImageBitmap.imageResource(id = R.drawable.shot)
     )
 
-    // 🌈 Fondo principal vibrante
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    listOf(Color(0xFF4A148C), Color(0xFF880E4F), Color(0xFF000000))
-                )
-            )
     ) {
         Image(
-            painter = painterResource(id = R.drawable.fondo_burbujas_4),
+            painter = painterResource(id = R.drawable.fondo_burbujas_3),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
         )
 
-        // Flecha de retroceso
         IconButton(
             onClick = onBackClick,
             modifier = Modifier
@@ -99,13 +90,12 @@ fun RuletaScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.flecha_izquierda),
-                contentDescription = "Volver",
+                contentDescription = stringResource(id = R.string.content_desc_back),
                 tint = Color.Yellow,
                 modifier = Modifier.size(28.dp)
             )
         }
 
-        // Contenido principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -113,7 +103,7 @@ fun RuletaScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Ruleta Picante 🔥",
+                text = stringResource(R.string.roulette_title),
                 color = Color.White,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.ExtraBold
@@ -129,12 +119,10 @@ fun RuletaScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // 🎡 Ruleta brillante
             Box(
                 modifier = Modifier
                     .size(330.dp)
                     .drawBehind {
-                        // Halo externo neón
                         drawCircle(
                             brush = Brush.radialGradient(
                                 colors = listOf(Color.White.copy(alpha = 0.5f), Color.Transparent),
@@ -156,7 +144,6 @@ fun RuletaScreen(
                     visibleChallenges.forEachIndexed { index, challenge ->
                         val startAngle = index * sweepAngle
 
-                        // Segmento con gradiente
                         drawArc(
                             brush = Brush.sweepGradient(
                                 colors = listOf(
@@ -171,7 +158,6 @@ fun RuletaScreen(
                             size = Size(size.width, size.height)
                         )
 
-                        // Borde del segmento
                         drawArc(
                             color = Color.White.copy(alpha = 0.8f),
                             startAngle = startAngle,
@@ -181,7 +167,6 @@ fun RuletaScreen(
                             size = Size(size.width, size.height)
                         )
 
-                        // 📸 Íconos grandes centrados en el segmento
                         val angle = (startAngle + sweepAngle / 2f) * PI / 180f
                         val iconX = (center.x + cos(angle) * radius / 1.6f).toFloat()
                         val iconY = (center.y + sin(angle) * radius / 1.6f).toFloat()
@@ -192,10 +177,8 @@ fun RuletaScreen(
                             dstSize = IntSize(100, 100),
                             alpha = 0.95f
                         )
-
                     }
 
-                    // Círculo central luminoso
                     drawCircle(
                         brush = Brush.radialGradient(
                             colors = listOf(Color.White, Color(0xFFFF4081)),
@@ -205,7 +188,6 @@ fun RuletaScreen(
                         radius = 90f
                     )
 
-                    // Borde externo brillante
                     drawCircle(
                         color = Color.White.copy(alpha = 0.8f),
                         radius = radius,
@@ -213,7 +195,6 @@ fun RuletaScreen(
                     )
                 }
 
-                // 🔺 Flecha superior brillante
                 Canvas(modifier = Modifier.size(330.dp)) {
                     val trianglePath = Path().apply {
                         moveTo(size.width / 2 - 30, 20f)
@@ -239,7 +220,6 @@ fun RuletaScreen(
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            // 🔘 Botón girar
             Button(
                 onClick = {
                     val newRotation = rotationAngle + 720 + Random.nextInt(0, 360)
@@ -262,7 +242,7 @@ fun RuletaScreen(
                     .height(55.dp)
             ) {
                 Text(
-                    text = "Girar Ruleta",
+                    text = stringResource(R.string.roulette_spin_button),
                     color = Color(0xFF6C3905),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -270,7 +250,6 @@ fun RuletaScreen(
             }
         }
 
-        // 💬 Diálogo con reto
         if (isDialogVisible && selectedChallenge != null) {
             AlertDialog(
                 onDismissRequest = { isDialogVisible = false },
@@ -281,7 +260,7 @@ fun RuletaScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${currentPlayer.name}, tu reto es:",
+                            text = stringResource(R.string.roulette_dialog_challenge_for, currentPlayer.name),
                             color = Color.Black,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
@@ -306,7 +285,7 @@ fun RuletaScreen(
                             }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.like),
-                                    contentDescription = "Me gusta",
+                                    contentDescription = stringResource(R.string.content_desc_like),
                                     tint = Color(0xFFFF9800),
                                     modifier = Modifier.size(42.dp)
                                 )
@@ -318,7 +297,7 @@ fun RuletaScreen(
                             }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.dislike),
-                                    contentDescription = "No me gusta",
+                                    contentDescription = stringResource(R.string.content_desc_dislike),
                                     tint = Color(0xFFB3405F),
                                     modifier = Modifier.size(42.dp)
                                 )
@@ -332,10 +311,3 @@ fun RuletaScreen(
         }
     }
 }
-
-
-
-
-
-
-

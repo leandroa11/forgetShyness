@@ -11,11 +11,9 @@ object EventSessionManager {
     var latitude: Double? = null
     var longitude: Double? = null
     var shoppingList: String = ""
-    // ✅ Listas reactivas para invitados
     var invitedUsers = mutableStateListOf<String>()
     var invitedUserNames = mutableStateListOf<String>()
     var currentUserId: String? = null
-    // ✅ Nuevo: Rastrear qué evento se está editando actualmente
     var currentEditingEventId: String? = null
 
     fun clear() {

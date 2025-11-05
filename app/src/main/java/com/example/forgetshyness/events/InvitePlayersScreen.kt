@@ -99,21 +99,17 @@ fun InvitePlayersScreen(
 
             Button(
                 onClick = {
-                    // 1. Actualizar la lista de IDs en la sesión
                     EventSessionManager.invitedUsers.clear()
                     EventSessionManager.invitedUsers.addAll(selectedUsers)
-
-                    // 2. Reconstruir la lista de NOMBRES a partir de la lista de IDs actualizada
                     EventSessionManager.invitedUserNames.clear()
                     val selectedNames = allUsers
                         .filter { it["id"] in EventSessionManager.invitedUsers }
                         .mapNotNull { it["name"] }
                     EventSessionManager.invitedUserNames.addAll(selectedNames)
 
-                    // 3. Log de depuración para verificar el estado ANTES de volver
+                    // Log de depuración para verificar el estado ANTES de volver
                     Log.d("InvitePlayersScreen", "Actualizando SessionManager. IDs: ${EventSessionManager.invitedUsers}, Nombres: ${EventSessionManager.invitedUserNames}")
 
-                    // 4. Volver a la pantalla anterior
                     onInvitationsSent()
                 },
                 enabled = selectedUsers.isNotEmpty(),
