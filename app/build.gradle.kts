@@ -38,19 +38,12 @@ android {
     buildFeatures {
         compose = true
     }
-<<<<<<< HEAD
-}
-
-dependencies {
-
-=======
 
 
 }
 
 dependencies {
     // --- Jetpack Compose ---
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,14 +51,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-<<<<<<< HEAD
-    implementation(libs.androidx.material3)
-    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
-    implementation("com.google.firebase:firebase-analytics")
-    implementation ("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-auth")
-    implementation(libs.androidx.foundation)
-=======
 
 
     // Material 3 completo
@@ -103,7 +88,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore:25.1.1")
 
     // --- Tests ---
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

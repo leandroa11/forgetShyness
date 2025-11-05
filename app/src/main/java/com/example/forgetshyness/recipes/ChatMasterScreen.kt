@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import com.example.forgetshyness.data.Chat
 import com.example.forgetshyness.data.ChatRepository
 import com.example.forgetshyness.data.MessageModel
@@ -29,6 +30,8 @@ fun ChatMasterScreen(
     var messagesForSelected by remember { mutableStateOf<List<MessageModel>>(emptyList()) }
 
     val scope = rememberCoroutineScope()
+    val dispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
 
     LaunchedEffect(userId) {
         loading = true
@@ -63,8 +66,11 @@ fun ChatMasterScreen(
                         }
                     },
                     modifier = Modifier.weight(0.36f),
-                    repository = repository, // ✅ agregado
-                    userId = userId          // ✅ agregado
+                    repository = repository,
+                    userId = userId,
+                    onBackClick = {
+                        dispatcher?.onBackPressed()
+                    },
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -76,7 +82,10 @@ fun ChatMasterScreen(
                         userName = userName,
                         repository = repository,
                         onMessagesChanged = { msgs -> messagesForSelected = msgs },
-                        modifier = Modifier.weight(0.64f)
+                        modifier = Modifier.weight(0.64f),
+                        onBackClick = {
+                            dispatcher?.onBackPressed()
+                        },
                     )
                 } ?: Box(modifier = Modifier.weight(0.64f)) {}
             }
@@ -92,8 +101,11 @@ fun ChatMasterScreen(
                 },
                 onSelectChat = { chatId -> onOpenChatExternally(chatId) },
                 modifier = Modifier.fillMaxSize(),
-                repository = repository, // ✅ agregado
-                userId = userId          // ✅ agregado
+                repository = repository,
+                userId = userId,
+                onBackClick = {
+                    dispatcher?.onBackPressed()
+                },
             )
         }
     }

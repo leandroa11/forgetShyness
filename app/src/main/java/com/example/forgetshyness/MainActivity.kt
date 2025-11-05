@@ -2,26 +2,16 @@ package com.example.forgetshyness
 
 import android.content.Intent
 import android.os.Bundle
-<<<<<<< HEAD
-=======
 import android.util.Log
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-<<<<<<< HEAD
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-=======
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -30,18 +20,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-<<<<<<< HEAD
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            WelcomeScreen(
-                onEnter = {
-                    startActivity(Intent(this, ExperienceActivity::class.java))
-=======
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -112,7 +90,6 @@ class MainActivity : ComponentActivity() {
                             startActivity(intent)
                         }
                     }
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
                 }
             )
         }
@@ -120,11 +97,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-<<<<<<< HEAD
-fun WelcomeScreen(onEnter: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-
-=======
 fun WelcomeScreen(
     phoneNumber: String,
     phoneError: String,
@@ -134,7 +106,6 @@ fun WelcomeScreen(
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
         // Imagen de fondo
         Image(
             painter = painterResource(id = R.drawable.fondo_burbujas_1),
@@ -143,11 +114,7 @@ fun WelcomeScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-<<<<<<< HEAD
-        // Overlay para mejorar contraste
-=======
         // Overlay
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -165,20 +132,12 @@ fun WelcomeScreen(
                 .padding(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-<<<<<<< HEAD
-
-=======
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
             Spacer(Modifier.height(32.dp))
 
             // Logo
             Image(
                 painter = painterResource(R.drawable.icono_calido_forgetshyness),
-<<<<<<< HEAD
-                contentDescription = "Logo Forget Shyness",
-=======
                 contentDescription = stringResource(R.string.app_name),
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
                 modifier = Modifier.height(220.dp)
             )
 
@@ -199,18 +158,12 @@ fun WelcomeScreen(
 
             Spacer(Modifier.height(12.dp))
 
-<<<<<<< HEAD
-            // Descripción
-=======
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
             Text(
                 text = stringResource(R.string.description),
                 fontSize = 14.sp,
                 color = Color.White
             )
 
-<<<<<<< HEAD
-=======
             Spacer(Modifier.height(32.dp))
 
             OutlinedTextField(
@@ -257,7 +210,6 @@ fun WelcomeScreen(
                 Spacer(Modifier.height(24.dp))
             }
 
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
             Spacer(Modifier.weight(1f))
 
             // Botón de entrada
@@ -267,20 +219,6 @@ fun WelcomeScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFD54F)),
                 modifier = Modifier
                     .height(52.dp)
-<<<<<<< HEAD
-                    .fillMaxWidth(0.85f)
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.icono_boton_juego_coctel_1),
-                    contentDescription = "Entrar",
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.enter_button),
-                    color = Color.Black
-                )
-=======
                     .fillMaxWidth(0.85f),
                 enabled = !isLoading
             ) {
@@ -302,13 +240,8 @@ fun WelcomeScreen(
                         color = Color.Black
                     )
                 }
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
             }
             Spacer(Modifier.height(32.dp))
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af

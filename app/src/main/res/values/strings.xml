@@ -4,8 +4,6 @@
     <string name="slogan2">Recuerda la diversión</string>
     <string name="description">Un toque de juego, una pizca de sabor y mucha conexión</string>
     <string name="enter_button">Entrar a la experiencia</string>
-<<<<<<< HEAD
-=======
 
     <string name="google_maps_key" translatable="false">AIzaSyAVa8psYpBrk1nzytaoZyAHO6OGCjSkpSY</string>
 
@@ -115,5 +113,27 @@
     <!-- ChatBot -->
     <string name="generative_api_key" translatable="false">AIzaSyBaMTVGePhfU5NNm9CHJz5vtLmIH7u65ow</string>
 
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
+    <!-- ChatScreen -->
+    <string name="chat_bot_greeting">Hola %1$s 👋 soy tu bartender virtual. ¿Qué tipo de cóctel te gustaría hoy?</string>
+    <string name="chat_welcome_title">Bienvenido %1$s 🍸</string>
+    <string name="chat_input_placeholder">Escribe tu mensaje...</string>
+    <string name="chat_send_button">Enviar</string>
+    <string name="chat_error_403">Parece que hay un problema con la conexión al servicio. Intenta más tarde.</string>
+    <string name="chat_error_503">El servidor está ocupado. Inténtalo nuevamente.</string>
+    <string name="chat_error_generic">Algo no salió bien. Intenta más tarde.</string>
+
+    <!-- ChatListColumn -->
+    <string name="chat_list_title">Tus Chats de Recetas</string>
+    <string name="chat_list_new_chat">Iniciar nuevo chat</string>
+    <string name="chat_list_no_chats">Aún no tienes chats 🍹</string>
+    <string name="chat_list_item_title">Chat de %1$s</string>
+    <string name="chat_list_default_user_name">Usuario</string>
+    <string name="chat_list_user_prefix">Tú: </string>
+    <string name="chat_list_bot_prefix">Bot: </string>
+    <string name="chat_list_delete_description">Eliminar chat</string>
+    <string name="chat_list_delete_dialog_title">Eliminar Chat</string>
+    <string name="chat_list_delete_dialog_text">¿Seguro que deseas eliminar este chat y todos sus mensajes? Esta acción no se puede deshacer.</string>
+    <string name="chat_list_delete_dialog_confirm">Eliminar</string>
+    <string name="chat_list_delete_dialog_cancel">Cancelar</string>
+
 </resources>

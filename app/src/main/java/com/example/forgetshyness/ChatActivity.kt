@@ -37,7 +37,10 @@ class ChatActivity : ComponentActivity() {
                 userId = userId,
                 userName = userName,
                 repository = ChatRepository(this),
-                onMessagesChanged = {}
+                onMessagesChanged = {},
+                onBackClick = {
+                    onBackPressedDispatcher.onBackPressed()
+                },
             )
 
         }

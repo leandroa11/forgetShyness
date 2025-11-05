@@ -1,20 +1,11 @@
 package com.example.forgetshyness
 
-<<<<<<< HEAD
-import android.content.Intent
-import android.os.Bundle
-import android.util.Patterns
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-=======
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -41,10 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.example.forgetshyness.data.FirestoreRepository
 import com.example.forgetshyness.data.User
 import kotlinx.coroutines.launch
-<<<<<<< HEAD
-=======
 import java.util.regex.Pattern
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
 
 class ExperienceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +65,6 @@ private fun validateAge(age: String): String {
 }
 
 private fun validateEmail(email: String): String {
-<<<<<<< HEAD
-    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) return "Formato de correo no válido."
-=======
     val emailPattern = Pattern.compile(
         "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
                 "\\@" +
@@ -90,7 +75,6 @@ private fun validateEmail(email: String): String {
                 ")+"
     )
     if (!emailPattern.matcher(email).matches()) return "Formato de correo no válido."
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
     return ""
 }
 
@@ -98,11 +82,7 @@ private fun validateEmail(email: String): String {
 @Composable
 fun ExperienceFormScreen() {
     val context = LocalContext.current
-<<<<<<< HEAD
-    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-=======
     val activity = LocalActivity.current
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
     val coroutineScope = rememberCoroutineScope()
     val firestoreRepository = remember { FirestoreRepository() }
 
@@ -121,9 +101,9 @@ fun ExperienceFormScreen() {
     val isFormValid by remember {
         derivedStateOf {
             validateName(name).isEmpty() &&
-            validatePhone(phone).isEmpty() &&
-            validateAge(age).isEmpty() &&
-            validateEmail(email).isEmpty()
+                    validatePhone(phone).isEmpty() &&
+                    validateAge(age).isEmpty() &&
+                    validateEmail(email).isEmpty()
         }
     }
 
@@ -216,7 +196,7 @@ fun ExperienceFormScreen() {
                             }
                             context.startActivity(intent)
                         }
-                        
+
                         isLoading = false
                     }
                 },
@@ -248,11 +228,7 @@ fun ExperienceFormScreen() {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-<<<<<<< HEAD
-                modifier = Modifier.clickable { backDispatcher?.onBackPressed() }
-=======
                 modifier = Modifier.clickable { activity?.finish() }
->>>>>>> 4681740a56b14f9b3e66dba6e00b18ab7af3c3af
             ) {
                 Image(
                     painter = painterResource(R.drawable.flecha_izquierda),
